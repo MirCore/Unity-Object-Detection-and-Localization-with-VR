@@ -12,8 +12,9 @@ public class ObjectLocator : MonoBehaviour
 
     [Header("Object-detection settings")]
     [SerializeField] private List<string> LabelsToFind;
+    [SerializeField] private bool StereoImage;
     private readonly List<int> _labelsToFindIndexes = new();
-    
+
     [Header("Raycast setting")]
     [SerializeField] private int MaxRayDistance = 3;
     
@@ -154,7 +155,7 @@ public class ObjectLocator : MonoBehaviour
             if (!_labelsToFindIndexes.Contains((int) detection.classIndex)) // Filter for detected objects by Label
                 return;
             
-            _cameraToWorld.ProcessDetection(detection, MaxRayDistance, out Point p); // Raycast from Camera to Floor
+            _cameraToWorld.ProcessDetection(detection, MaxRayDistance, StereoImage, out Point p); // Raycast from Camera to Floor
             
             if (p != null)
                 _detectedObjects[(int) detection.classIndex].NewDetectedPoints.Add(p); // Write hit points to _detectedObjects List

@@ -12,14 +12,23 @@ public class CameraToWorld
         _camera = camera;
     }
 
-    private bool RaycastDetection(Detection detection, float maxRayDistance, out Vector3 point, out float width)
+    private bool RaycastDetection(Detection detection, float maxRayDistance, bool stereoImage, out Vector3 point, out float width)
     {
         width = 0;
         point = new Vector3();
-        
+
+        float x = detection.x;
+        float w = detection.w;
+
+        if (stereoImage) // * 2 because of Valve Index double lens image
+        {
+            x *= 2;
+            w *= 2;
+        }
+
         int pixelWidth = _camera.pixelWidth;
-        float x1CameraSpace = (detection.x * 2 + detection.w) * pixelWidth; // * 2 because of Valve Index double lens image
-        float x2CameraSpace = (detection.x * 2 - detection.w)  * pixelWidth; // * 2 because of Valve Index double lens image
+        float x1CameraSpace = (x * 2 + w) * pixelWidth;
+        float x2CameraSpace = (x * 2 - w)  * pixelWidth;
         float yCameraSpace = (1 - (detection.y + detection.h / 2)) * _camera.pixelHeight;
         
         Ray ray1 = _camera.ScreenPointToRay(new Vector2(x1CameraSpace, yCameraSpace));
@@ -54,15 +63,16 @@ public class CameraToWorld
         return t > 0;
     }
 
-    public void ProcessDetection(Detection detection, int maxRayDistance, out Point p)
+    public void ProcessDetection(Detection detection, int maxRayDistance, bool stereoImage, out Point p)
     {
         Profiler.BeginSample("RaycastDetection");
         
         p = null;
         
-        if (detection.x >= 0.5) // Filter out detected objects in right camera image
-            return;
-        if (!RaycastDetection(detection, maxRayDistance, out Vector3 point, out float width))
+        if (stereoImage)
+            if (detection.x >= 0.5) // Filter out detected objects in right camera image
+                return;
+        if (!RaycastDetection(detection, maxRayDistance, stereoImage, out Vector3 point, out float width))
             return;
 
         Vector3 hitDirection = point - _camera.transform.position;
