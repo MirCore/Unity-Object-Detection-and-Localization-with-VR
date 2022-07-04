@@ -18,7 +18,7 @@ public class ClusterGizmos : MonoBehaviour
             foreach (Point point in detectedObject.DetectedPoints)
             {
                 Color color = Color.HSVToRGB((float) point.ClusterId / clusterCount, 1f, 1f);
-                GizmosUtils.DrawText(GUI.skin, point.ClusterId.ToString(), new Vector3(point.X, 0, point.Z), color, 20);
+                GizmosUtils.DrawText(GUI.skin, point.ClusterId.ToString(), new Vector3(point.X, 0, point.Z), color, 10);
             }
             
         }
