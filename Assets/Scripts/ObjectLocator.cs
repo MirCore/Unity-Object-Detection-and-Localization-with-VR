@@ -30,6 +30,9 @@ public class ObjectLocator : MonoBehaviour
     private CameraToWorld _cameraToWorld;
     private DBScanMono _dbScanMono;
 
+    private readonly List<int> _listOfRunningClusteringCoroutines = new();
+
+
     private void Start()
     {
         _cameraToWorld = new CameraToWorld(Camera.main);
@@ -45,13 +48,19 @@ public class ObjectLocator : MonoBehaviour
         foreach (string label in LabelsToFind)
         {
             _labelsToFindIndexes.Add(Array.IndexOf(Marker.Labels, label));
-            Debug.Log("labelIndex: " + Array.IndexOf(Marker.Labels, label) + " name: " + Marker.Labels[Array.IndexOf(Marker.Labels, label)]);
+            //Debug.Log("labelIndex: " + Array.IndexOf(Marker.Labels, label) + " name: " + Marker.Labels[Array.IndexOf(Marker.Labels, label)]);
         }
-
-        InvokeRepeating(nameof(ClusterPoints), 0, 1);
-        InvokeRepeating(nameof(ProcessObjectType), 0.5f, 1);
     }
-    
+
+    private void Update()
+    {
+        if (_listOfRunningClusteringCoroutines.Count == 0)
+        {
+            ProcessObjectType();
+            ClusterPoints();
+        }
+    }
+
     private void ClusterPoints()
     {
         CleanOldPoints();
@@ -59,7 +68,7 @@ public class ObjectLocator : MonoBehaviour
         {
             _detectedObjects[index].DetectedPoints.AddRange(_detectedObjects[index].NewDetectedPoints);
             _detectedObjects[index].NewDetectedPoints.Clear();
-            _detectedObjects[index].Clusters = _dbScanMono.Main(_detectedObjects[index].DetectedPoints, Eps, MinPts); // Cluster points
+            _detectedObjects[index].Clusters = _dbScanMono.Main(_detectedObjects[index].DetectedPoints, Eps, MinPts, index, _listOfRunningClusteringCoroutines); // Cluster points
         }
     }
     

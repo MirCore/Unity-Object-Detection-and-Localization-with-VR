@@ -95,22 +95,24 @@ public static class DBScan
 
 public class DBScanMono : MonoBehaviour
 {
-    public List<Cluster> Main(List<Point> points, double eps, int minPts)
+    public List<Cluster> Main(List<Point> points, double eps, int minPts, int index, List<int> coroutineList)
     {
         if (points == null)
             return null;
         
         eps *= eps; // square eps
         List<Cluster> clusters = new();
-        StartCoroutine(GetClusters(points, eps, minPts, returnValue =>
+        StartCoroutine(GetClusters(points, eps, minPts, index, coroutineList, returnValue =>
         {
             clusters = returnValue;
         }));
         return clusters;
     }
 
-    private static IEnumerator GetClusters(List<Point> points, double eps, int minPts, Action<List<Cluster>> callback = null)
+    private static IEnumerator GetClusters(List<Point> points, double eps, int minPts, int index, ICollection<int> coroutineList, Action<List<Cluster>> callback = null)
     {
+        coroutineList.Add(index);
+        
         List<Cluster> clusters = new();
         
         int clusterId = 1;
@@ -119,10 +121,13 @@ public class DBScanMono : MonoBehaviour
             if (p.ClusterId != Point.UNCLASSIFIED)
                 continue;
 
+            float startTime = Time.realtimeSinceStartup;
             Profiler.BeginSample("GetRegion1");
             List<Point> seeds = GetRegion(points, p, eps);
             Profiler.EndSample();
-
+            if( Time.realtimeSinceStartup - startTime > 0.005f )
+                yield return null;
+            
             if (seeds.Count < minPts) // no core point
             {
                 p.ClusterId = Point.NOISE;
@@ -135,7 +140,7 @@ public class DBScanMono : MonoBehaviour
                 point.ClusterId = clusterId;
             seeds.Remove(p);
             
-            float startTime = Time.realtimeSinceStartup;
+            startTime = Time.realtimeSinceStartup;
             while (seeds.Count > 0)
             {
                 Point currentP = seeds.First();
@@ -144,7 +149,7 @@ public class DBScanMono : MonoBehaviour
                 List<Point> result = GetRegion(points, currentP, eps);
                 Profiler.EndSample();
                 
-                if( Time.realtimeSinceStartup - startTime > 0.01f )
+                if( Time.realtimeSinceStartup - startTime > 0.005f )
                 {
                     yield return null;
                     startTime = Time.realtimeSinceStartup;
@@ -166,6 +171,7 @@ public class DBScanMono : MonoBehaviour
         }
 
         callback?.Invoke(clusters);
+        coroutineList.Remove(index);
     }
 
     private static List<Point> GetRegion(IEnumerable<Point> points, Point p, double eps)
