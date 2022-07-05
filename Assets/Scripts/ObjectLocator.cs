@@ -14,6 +14,7 @@ public class ObjectLocator : MonoBehaviour
     [SerializeField] private List<string> LabelsToFind;
     [SerializeField] private bool StereoImage;
     private readonly List<int> _labelsToFindIndexes = new();
+    [SerializeField] private bool UseObjectModels = true;
 
     [Header("Raycast setting")]
     [SerializeField] private int MaxRayDistance = 3;
@@ -97,6 +98,7 @@ public class ObjectLocator : MonoBehaviour
                 else
                 {
                     closestObject.SetNewPositionAndScale(cluster);
+                    closestObject.ToggleModel(UseObjectModels);
                     placedObjects.Remove(closestObject);
                 }
             }
