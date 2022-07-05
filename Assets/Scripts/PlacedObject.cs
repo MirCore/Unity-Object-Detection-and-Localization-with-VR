@@ -41,7 +41,9 @@ public class PlacedObject : MonoBehaviour
     {
         LabelIndex = labelIndex;
         Label = Marker.Labels[LabelIndex];
-        
+
+        if (ObjectModelManager.Instance.GetObject(Label) == null)
+            return;
         _gameObject = Instantiate(ObjectModelManager.Instance.GetObject(Label), transform);
         SetMeshSize();
     }
@@ -65,7 +67,8 @@ public class PlacedObject : MonoBehaviour
 
     public void ToggleModel(bool useObjectModels)
     {
-        _gameObject.SetActive(useObjectModels);
+        if (_gameObject != null)
+            _gameObject.SetActive(useObjectModels);
         Hologram.SetActive(!useObjectModels);
     }
 }

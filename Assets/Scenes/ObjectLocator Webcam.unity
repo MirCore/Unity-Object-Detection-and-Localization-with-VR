@@ -683,13 +683,15 @@ MonoBehaviour:
   - Plant
   - Table
   - Bottle
+  - Person
   StereoImage: 0
+  UseObjectModels: 1
   MaxRayDistance: 30
-  Eps: 0.1
+  Eps: 0.3
   MinPts: 30
-  GeneralPointLifetime: 30
+  GeneralPointLifetime: 20
   NoiseLifetime: 5
-  ObjectLifetime: 30
+  ObjectLifetime: 5
 --- !u!4 &1464385181
 Transform:
   m_ObjectHideFlags: 0
@@ -726,6 +728,8 @@ MonoBehaviour:
     Model: {fileID: 1792930433024800, guid: d11695e43d89ff24bb36886a4c039c14, type: 3}
   - Label: Bottle
     Model: {fileID: 4193485162749066220, guid: 41ae87047c8dfcb4f9a5eaad3fbbc7c5, type: 3}
+  - Label: Person
+    Model: {fileID: 6903723187001909290, guid: 91c3fdebffcc3734bbd58d4fb830eb15, type: 3}
   DetectedObjectPrefab: {fileID: 7477247686367226426, guid: c3d72db906bb526448af2df8528f60ad, type: 3}
 --- !u!114 &1464385183
 MonoBehaviour:

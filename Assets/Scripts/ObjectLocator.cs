@@ -83,7 +83,6 @@ public class ObjectLocator : MonoBehaviour
             // For each cluster, get closest placedObject (if any) and update position and size
             // If no close placedObject was found spawn a new one
             List<PlacedObject> placedObjects = new(_detectedObjects[labelIndex].PlacedObjects);
-            Debug.Log(placedObjects.Count + " " + _detectedObjects[labelIndex].Clusters.Count);
             foreach (Cluster cluster in _detectedObjects[labelIndex].Clusters)
             {
                 GetClosestObject(cluster.Center, placedObjects, out PlacedObject closestObject, out float distance);
