@@ -95,25 +95,22 @@ public static class DBScan
 
 public class DBScanMono : MonoBehaviour
 {
-    public List<Cluster> Main(List<Point> points, double eps, int minPts, int index, List<int> coroutineList)
+    public void Main(DetectedObject detectedObjects, double eps, int minPts, int index, List<int> coroutineList)
     {
-        if (points == null)
-            return null;
+        if (detectedObjects.DetectedPoints == null)
+            return;
         
         eps *= eps; // square eps
-        List<Cluster> clusters = new();
-        StartCoroutine(GetClusters(points, eps, minPts, index, coroutineList, returnValue =>
-        {
-            clusters = returnValue;
-        }));
-        return clusters;
+        StartCoroutine(GetClusters(detectedObjects, eps, minPts, index, coroutineList));
     }
 
-    private static IEnumerator GetClusters(List<Point> points, double eps, int minPts, int index, ICollection<int> coroutineList, Action<List<Cluster>> callback = null)
+    private static IEnumerator GetClusters(DetectedObject detectedObjects, double eps, int minPts, int index, ICollection<int> coroutineList)
     {
         coroutineList.Add(index);
-        
-        List<Cluster> clusters = new();
+
+        List<Point> points = detectedObjects.DetectedPoints;
+
+        List<Cluster> clusters = detectedObjects.Clusters;
         
         int clusterId = 1;
         foreach (Point p in points)
@@ -169,8 +166,7 @@ public class DBScanMono : MonoBehaviour
             clusters.Add(new Cluster{Id = clusterId});
             clusterId++;
         }
-
-        callback?.Invoke(clusters);
+        
         coroutineList.Remove(index);
     }
 

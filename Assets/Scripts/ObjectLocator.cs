@@ -57,18 +57,19 @@ public class ObjectLocator : MonoBehaviour
         if (_listOfRunningClusteringCoroutines.Count == 0)
         {
             ProcessObjectType();
+            CleanOldPoints();
             ClusterPoints();
         }
     }
 
     private void ClusterPoints()
     {
-        CleanOldPoints();
         foreach (int index in _labelsToFindIndexes)
         {
             _detectedObjects[index].DetectedPoints.AddRange(_detectedObjects[index].NewDetectedPoints);
             _detectedObjects[index].NewDetectedPoints.Clear();
-            _detectedObjects[index].Clusters = _dbScanMono.Main(_detectedObjects[index].DetectedPoints, Eps, MinPts, index, _listOfRunningClusteringCoroutines); // Cluster points
+            _detectedObjects[index].Clusters.Clear();
+            _dbScanMono.Main(_detectedObjects[index], Eps, MinPts, index, _listOfRunningClusteringCoroutines); // Cluster points
         }
     }
     
@@ -81,6 +82,7 @@ public class ObjectLocator : MonoBehaviour
             // For each cluster, get closest placedObject (if any) and update position and size
             // If no close placedObject was found spawn a new one
             List<PlacedObject> placedObjects = new(_detectedObjects[labelIndex].PlacedObjects);
+            Debug.Log(placedObjects.Count + " " + _detectedObjects[labelIndex].Clusters.Count);
             foreach (Cluster cluster in _detectedObjects[labelIndex].Clusters)
             {
                 GetClosestObject(cluster.Center, placedObjects, out PlacedObject closestObject, out float distance);
@@ -131,13 +133,18 @@ public class ObjectLocator : MonoBehaviour
         {
             foreach (Cluster cluster in detectedObject.Clusters)
             {
-                cluster.W = detectedObject.DetectedPoints.Where(p => p.ClusterId == cluster.Id).Average(point => point.W);
-                cluster.H = detectedObject.DetectedPoints.Where(p => p.ClusterId == cluster.Id).Average(point => point.H);
+                cluster.W = detectedObject.DetectedPoints.Where(p => p.ClusterId == cluster.Id)
+                    .Average(point => point.W);
+                cluster.H = detectedObject.DetectedPoints.Where(p => p.ClusterId == cluster.Id)
+                    .Average(point => point.H);
 
-                float x = detectedObject.DetectedPoints.Where(p => p.ClusterId == cluster.Id).Average(point => point.X);
-                float y = detectedObject.DetectedPoints.Where(p => p.ClusterId == cluster.Id).Average(point => point.Z);
+                float x = detectedObject.DetectedPoints.Where(p => p.ClusterId == cluster.Id)
+                    .Average(point => point.X);
+                float y = detectedObject.DetectedPoints.Where(p => p.ClusterId == cluster.Id)
+                    .Average(point => point.Z);
 
                 cluster.Center = new Vector2(x, y);
+                
             }
         }
     }

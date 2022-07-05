@@ -22,8 +22,8 @@ public class CameraToWorld
 
         if (stereoImage) // * 2 because of Valve Index double lens image
         {
-            x *= 2;
-            w *= 2;
+            x *= 1;
+            w *= 1;
         }
 
         int pixelWidth = _camera.pixelWidth;
