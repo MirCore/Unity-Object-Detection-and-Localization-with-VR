@@ -720,12 +720,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Objects:
-  - Label: Plant
-    Model: {fileID: 174854, guid: 3fd9507fb16d56044bcf520c1d14427c, type: 3}
-  - Label: Chair
-    Model: {fileID: 1776277804425246, guid: 247e5b33a1b1dba43a82e14ad7191756, type: 3}
-  - Label: Table
-    Model: {fileID: 1792930433024800, guid: d11695e43d89ff24bb36886a4c039c14, type: 3}
   - Label: Bottle
     Model: {fileID: 4193485162749066220, guid: 41ae87047c8dfcb4f9a5eaad3fbbc7c5, type: 3}
   - Label: Person
