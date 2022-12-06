@@ -19,5 +19,5 @@ Detect and localize objects from the front-facing camera image of a VR Headset i
 YoloV4TinyBarracuda is an implementation of the YOLOv4-tiny object detection model on the Unity Barracuda neural network inference library.
 Developed and provided by [keijiro]: [YoloV4TinyBarracuda]
 
-[keijiro]: https://github.com/keijiro:
+[keijiro]: https://github.com/keijiro
 [YoloV4TinyBarracuda]: https://github.com/keijiro/YoloV4TinyBarracuda
