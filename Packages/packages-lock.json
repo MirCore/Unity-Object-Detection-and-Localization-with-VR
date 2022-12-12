@@ -122,6 +122,13 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
+    "com.unity.scripting.python": {
+      "version": "6.0.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
     "com.unity.services.core": {
       "version": "1.4.0",
       "depth": 1,
