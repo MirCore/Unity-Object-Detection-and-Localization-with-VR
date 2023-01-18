@@ -193,10 +193,42 @@ public class DetectedObject
     public readonly List<PlacedObject> PlacedObjects = new(); // GameObjects representing the detection
 }
 
-// ReSharper disable InconsistentNaming
 public class Point
 {
-    public float X, Z, W, H;
+    private float _x;
+    private float _z;
+    public float W, H;
+
+    public float X
+    {
+        get => _x;
+        set
+        {
+            _x = value;
+            _position.x = value;
+        }
+    }
+    public float Z
+    {
+        get => _z;
+        set
+        {
+            _z = value;
+            _position.y = value;
+        }
+    }
+    
+    private Vector2 _position;
+
+    public Vector2 Position
+    {
+        get => _position;
+        set {
+            _position = value;
+            X = value.x;
+            Z = value.y;
+        }
+    }
     public DateTime Timestamp;
     
     public const int NOISE = -1;

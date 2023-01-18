@@ -14,6 +14,7 @@ sealed class Visualizer : MonoBehaviour
     [SerializeField] Marker _markerPrefab = null;
     
     [SerializeField] private ObjectLocator Locator;
+    [SerializeField] private ObjectTracker Tracker;
 
     #endregion
 
@@ -52,7 +53,9 @@ sealed class Visualizer : MonoBehaviour
             _markers[i++].SetAttributes(d);
         }
 
-        Locator.SetNewDetectionData(_detector.Detections);
+        //Locator.SetNewDetectionData(_detector.Detections);
+        Tracker.SetNewDetectionData(_detector.Detections);
+        
 
         for (; i < _markers.Length; i++) _markers[i].Hide();
 

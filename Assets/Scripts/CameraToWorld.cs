@@ -22,13 +22,13 @@ public class CameraToWorld
 
         if (stereoImage) // * 2 because of Valve Index double lens image
         {
-            x *= 1;
-            w *= 1;
+            x *= 2;
+            w *= 2;
         }
 
         int pixelWidth = _camera.pixelWidth;
-        float x1CameraSpace = (x * 2 + w) * pixelWidth;
-        float x2CameraSpace = (x * 2 - w)  * pixelWidth;
+        float x1CameraSpace = (x + w) * pixelWidth;
+        float x2CameraSpace = (x - w)  * pixelWidth;
         float yCameraSpace = (1 - (detection.y + detection.h / 2)) * _camera.pixelHeight;
         
         Ray ray1 = _camera.ScreenPointToRay(new Vector2(x1CameraSpace, yCameraSpace));
@@ -41,7 +41,7 @@ public class CameraToWorld
         if (t1 > maxRayDistance || t2 > maxRayDistance)
             return false;
         point = (ray1.GetPoint(t1) + ray2.GetPoint(t2)) / 2;
-        width = Vector3.Distance(ray1.GetPoint(t1), ray2.GetPoint(t2));
+        width = Vector3.Distance(ray1.GetPoint(t1), ray2.GetPoint(t2)) / 2;
         
         /*if (!Physics.Raycast(ray1, out RaycastHit hit1, maxRayDistance, 1 << LayerMask.NameToLayer("Floor")))
             return false;
