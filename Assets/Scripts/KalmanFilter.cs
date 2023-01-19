@@ -31,7 +31,9 @@ public class KalmanFilter : MonoBehaviour
     [SerializeField] private GameObject KalmanPosition;
     [SerializeField] private Renderer Hologram;
 
-    [SerializeField] private bool SelfDestruct = true;
+    [SerializeField] private bool SelfDestruct = true;       
+    [SerializeField] private int SelfDestructDistance = 500;
+
 
     private Vector3? _measurement = null;
 
@@ -78,6 +80,8 @@ public class KalmanFilter : MonoBehaviour
         x = DenseVector.OfArray(new double[] {0, 0, 0, 0});
         //xtilde = x;
         //Ptilde = P;
+
+        KalmanManager.Instance.SetNewKalmanFilter(this);
     }
 
     private void Start()
@@ -134,8 +138,9 @@ public class KalmanFilter : MonoBehaviour
         KalmanPosition.transform.localScale = new Vector3((float)P[0,0], 0.1f, (float)P[1,1]);
 
         if (!SelfDestruct) return;
-        if (P[0,0] > 100)
+        if (P[0,0] > SelfDestructDistance)
         {
+            KalmanManager.Instance.RemoveKalmanFilter(this);
             Destroy(gameObject);
         }
     }

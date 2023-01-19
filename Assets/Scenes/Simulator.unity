@@ -217,6 +217,52 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &392779037
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 392779039}
+  - component: {fileID: 392779038}
+  m_Layer: 0
+  m_Name: KalmanManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &392779038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 392779037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a056da63e1b14eb49a375d312d6dbd86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  KalmanFilters: []
+  _kalmanFilter: {fileID: 7831495390002388126, guid: f89c008efa086754693c1b72ec53b822, type: 3}
+--- !u!4 &392779039
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 392779037}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 4.6859417, y: 0.8134365, z: -3.257206}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &738476581 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4417964409761003285, guid: 737a1cb2d7a458a41b578da4ea5f0f68, type: 3}
@@ -502,7 +548,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1278561409
 Transform:
   m_ObjectHideFlags: 0
@@ -568,9 +614,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   StereoImage: 0
   MaxRayDistance: 30
-  _kalmanFilter: {fileID: 7831495390002388126, guid: f89c008efa086754693c1b72ec53b822, type: 3}
-  _kalmanFilterCAM: {fileID: 7831495390002388126, guid: 57ee662c4f8383d409eb96ec632e9b7f, type: 3}
-  _kalmanFilters: []
 --- !u!4 &1286346514
 Transform:
   m_ObjectHideFlags: 0
@@ -604,8 +647,9 @@ MonoBehaviour:
   SimulationObject: {fileID: 4417964409761003285, guid: 737a1cb2d7a458a41b578da4ea5f0f68, type: 3}
   NumberOfSimulationSpawnsOnStartup: 2
   Noise: 0.2
-  MeasureDelta: 0.5
+  MeasureDelta: 0.1
   MeasurePosition: 0
+  SendMeasuredPositions: 0
   SpawnSimulationButton: 0
 --- !u!1 &1314325691
 GameObject:
@@ -745,7 +789,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 75ff22ba7137d964bb16070693495323, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

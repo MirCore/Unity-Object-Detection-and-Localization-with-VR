@@ -19,6 +19,7 @@ namespace Simulator
         [SerializeField] private float MeasureDelta = 1f;
 
         [SerializeField] private bool MeasurePosition = true;
+        [SerializeField] private bool SendMeasuredPositions = true;
 
         private List<Point> _points = new ();
         private List<List<Point>> _gizmoList = new ();
@@ -57,21 +58,26 @@ namespace Simulator
         {
             while (true)
             {
-                if (MeasurePosition && SimulatedObjects.Count > 0)
+                if (!MeasurePosition || SimulatedObjects.Count < 0)
                 {
-                   _points.Clear();
-                   foreach (Vector3 position in SimulatedObjects.Select(simulatedObject => simulatedObject.transform.position))
-                   {
-                       _points.Add(new Point
-                       {
-                           X = position.x + MathFunctions.GaussianRandom.GenerateNormalRandom(0f, Noise),
-                           Z = position.z  + MathFunctions.GaussianRandom.GenerateNormalRandom(0f, Noise)
-                       });
-                   }
-                   _gizmoList.Add(new List<Point>(_points));
-                   ObjectTracker.SetNewSimulationData(_points); 
+                    yield return new WaitForSeconds(MeasureDelta);
+                    continue;
                 }
-                
+                    
+                _points.Clear();
+                foreach (Vector3 position in SimulatedObjects.Select(simulatedObject => simulatedObject.transform.position))
+                {
+                    _points.Add(new Point
+                    {
+                        X = position.x + MathFunctions.GaussianRandom.GenerateNormalRandom(0f, Noise),
+                        Z = position.z + MathFunctions.GaussianRandom.GenerateNormalRandom(0f, Noise)
+                    });
+                }
+
+                _gizmoList.Add(new List<Point>(_points));
+                if (SendMeasuredPositions)
+                    ObjectTracker.SetNewSimulationData(_points);
+
                 yield return new WaitForSeconds(MeasureDelta);
             }
         }

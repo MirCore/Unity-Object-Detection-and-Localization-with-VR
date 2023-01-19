@@ -49,9 +49,8 @@ MonoBehaviour:
   RValue: 10
   KalmanPosition: {fileID: 7831495390002388126}
   Hologram: {fileID: 2909607148437311880}
-  RealPosition: {x: 0, y: 0, z: 0}
-  UpdateKalman: 1
-  MoveFactor: 1
+  SelfDestruct: 1
+  SelfDestructDistance: 200
 --- !u!1001 &7831495388921385079
 PrefabInstance:
   m_ObjectHideFlags: 0

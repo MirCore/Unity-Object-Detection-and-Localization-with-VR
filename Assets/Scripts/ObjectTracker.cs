@@ -11,13 +11,8 @@ public class ObjectTracker : MonoBehaviour
     
     [Header("Raycast setting")]
     [SerializeField] private int MaxRayDistance = 30;
-    private List<Point> Points = new List<Point>();
     
     private CameraToWorld _cameraToWorld;
-    [SerializeField] private GameObject _kalmanFilter;
-    [SerializeField] private GameObject _kalmanFilterCAM;
-    [SerializeField] private List<KalmanFilter> _kalmanFilters = new List<KalmanFilter>();
-    private List<KalmanFilterCAM> _kalmanFiltersCAM = new List<KalmanFilterCAM>();
 
     private void Start()
     {
@@ -28,9 +23,9 @@ public class ObjectTracker : MonoBehaviour
     {
         List<Point> points = new List<Point>();
 
-        foreach (KalmanFilter kalmanFilter in _kalmanFilters.Where(kalmanFilter => kalmanFilter == null))
+        foreach (KalmanFilter kalmanFilter in KalmanManager.Instance.KalmanFilters.Where(kalmanFilter => kalmanFilter == null))
         {
-            _kalmanFilters.Remove(kalmanFilter);
+            KalmanManager.Instance.KalmanFilters.Remove(kalmanFilter);
             break;
         }
         
@@ -62,56 +57,58 @@ public class ObjectTracker : MonoBehaviour
         ProcessKalman(points);
     }
 
-    private void ProcessKalman(List<Point> points)
+    private static void ProcessKalman(IReadOnlyList<Point> points)
     {
         if (points.Count == 0)
             return;
-        if (_kalmanFilters.Count == 0)
-            InstantiateNewKalmanFilter();
+        if (KalmanManager.Instance.KalmanFilters.Count == 0)
+            KalmanManager.Instance.InstantiateNewKalmanFilter();
 
 
         float[][] distanceArray = CreateDistanceArray(points);
 
-        int kalmanFilterCount = _kalmanFilters.Count;
+        int kalmanFilterCount = KalmanManager.Instance.KalmanFilters.Count;
         for (int i = 0; i < points.Count; i++)
         {
             // Find pair of KalmanFilter and Point with smallest distance
             FindMinIndexOfMulti(distanceArray, out int kalman, out int point);
 
             // Send Point to KalmanFilter or Instantiate a new KalmanFilter if the distance is higher than the threshold
-            KalmanFilter kalmanFilter = float.IsPositiveInfinity(distanceArray[kalman][point]) ? InstantiateNewKalmanFilter() : _kalmanFilters[kalman];
-            kalmanFilter.SetNewMeasurement(points[point].Position);
-           
-            // Set the distance of the used KalmanFilter and Point to Infinity in the distanceArray
-            for (int k = 0; k < kalmanFilterCount; k++)
+            if (float.IsPositiveInfinity(distanceArray[kalman][point]))
             {
-                for (int p = 0; p < points.Count; p++)
+                KalmanManager.Instance.InstantiateNewKalmanFilter();
+                KalmanManager.Instance.KalmanFilters.LastOrDefault()?.SetNewMeasurement(points[point].Position);
+            }
+            else
+            {
+                KalmanManager.Instance.KalmanFilters[kalman].SetNewMeasurement(points[point].Position);
+            
+                // Set the distance of the used KalmanFilter and Point to Infinity in the distanceArray
+                for (int k = 0; k < kalmanFilterCount; k++)
                 {
-                    if (k == kalman || p == point)
-                        distanceArray[k][p] = float.PositiveInfinity;
+                    for (int p = 0; p < points.Count; p++)
+                    {
+                        if (k == kalman || p == point)
+                            distanceArray[k][p] = float.PositiveInfinity;
+                    }
                 }
+            
             }
         }
     }
 
-    private KalmanFilter InstantiateNewKalmanFilter()
-    {
-        KalmanFilter kalmanFilter = Instantiate(_kalmanFilter, new Vector3(), new Quaternion()).GetComponent<KalmanFilter>();
-        _kalmanFilters.Add(kalmanFilter);
-        return kalmanFilter;
-    }
 
-    private float[][] CreateDistanceArray(IReadOnlyList<Point> points)
+    private static float[][] CreateDistanceArray(IReadOnlyList<Point> points)
     {
-        float[][] distanceMultiArray = new float[_kalmanFilters.Count][];
+        float[][] distanceMultiArray = new float[KalmanManager.Instance.KalmanFilters.Count][];
 
-        for (int k = 0; k < _kalmanFilters.Count; k++)
+        for (int k = 0; k < KalmanManager.Instance.KalmanFilters.Count; k++)
         {
             distanceMultiArray[k] = new float[points.Count];
             
             for (int p = 0; p < points.Count; p++)
             {
-                distanceMultiArray[k][p] = Vector2.Distance(_kalmanFilters[k].GetVector2Position(), points[p].Position);
+                distanceMultiArray[k][p] = Vector2.Distance(KalmanManager.Instance.KalmanFilters[k].GetVector2Position(), points[p].Position);
             }
         }
 
@@ -132,15 +129,6 @@ public class ObjectTracker : MonoBehaviour
                 element = e;
             }
             
-        }
-    }
-
-    private void OnDrawGizmos()
-    {
-        //foreach (Point point in Points)
-        if (Points.Count > 0)
-        {
-            GizmosUtils.DrawText(GUI.skin, "O", new Vector3(Points.LastOrDefault().X, 0, Points.LastOrDefault().Z), color: Color.black, fontSize: 10);
         }
     }
 }
