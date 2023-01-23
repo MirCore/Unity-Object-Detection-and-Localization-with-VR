@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3868007669215c04d88d238829dd03d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Q: 5
+  Q: 10
   RValue: 10
   KalmanPosition: {fileID: 7831495390002388126}
   Hologram: {fileID: 2909607148437311880}

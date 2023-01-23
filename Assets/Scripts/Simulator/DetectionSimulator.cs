@@ -12,7 +12,7 @@ namespace Simulator
     public class DetectionSimulator : MonoBehaviour
     {
         [SerializeField] private ObjectTracker ObjectTracker;
-        [SerializeField] private List<GameObject> SimulatedObjects = new List<GameObject>();
+        [SerializeField] public List<CharacterController> SimulatedObjects = new List<CharacterController>();
         [SerializeField] private GameObject SimulationObject;
         [SerializeField] private int NumberOfSimulationSpawnsOnStartup;
         [SerializeField] private float Noise = 1f;
@@ -40,6 +40,8 @@ namespace Simulator
 
         private void Start()
         {
+            Random.InitState(42);
+            
             for (int i = 0; i < NumberOfSimulationSpawnsOnStartup; i++)
             {
                 SpawnSimulation();
@@ -51,7 +53,7 @@ namespace Simulator
         private void SpawnSimulation()
         {
             SimulatedObjects.Add(Instantiate(SimulationObject, new Vector3(Random.Range(-5, 5), 0, Random.Range(-5, 5)),
-                Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0))));
+                Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0))).GetComponent<CharacterController>());
         }
 
         private IEnumerator Measure()

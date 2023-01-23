@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using Klak.TestTools;
 using YoloV4Tiny;
 
 sealed class VisualizerSimulation: MonoBehaviour

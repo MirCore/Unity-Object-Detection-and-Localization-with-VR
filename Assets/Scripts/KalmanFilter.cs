@@ -18,8 +18,8 @@ public class KalmanFilter : MonoBehaviour
     private static Matrix<double> I;
     private static Matrix<double> R;
     private static Matrix<double> GdQGdT;
-    private Matrix<double> P;
-    private Vector<double> x;
+    public Matrix<double> P { get; private set; }
+    public Vector<double> x { get; private set; }
 
     //private Vector<double> xtilde;
     //private Matrix<double> Ptilde;
@@ -40,8 +40,12 @@ public class KalmanFilter : MonoBehaviour
     // Start is called before the first frame update
     private void Awake()
     {
+        Q = GameManager.Instance.GetQ();
+        RValue = GameManager.Instance.GetRValue();
+        
         Ts = Time.fixedDeltaTime;
         
+        // State-Transition:
         F = DenseMatrix.OfArray(new double[,]
         {
             {1,0,Ts,0},
@@ -52,6 +56,7 @@ public class KalmanFilter : MonoBehaviour
 
         FT = F.Transpose();
         
+        // 
         H = DenseMatrix.OfArray(new double[,]
         {
             {1,0,0,0},
@@ -78,14 +83,13 @@ public class KalmanFilter : MonoBehaviour
          
         // Initial
         x = DenseVector.OfArray(new double[] {0, 0, 0, 0});
-        //xtilde = x;
-        //Ptilde = P;
 
         KalmanManager.Instance.SetNewKalmanFilter(this);
     }
 
     private void Start()
     {
+        Random.InitState(42);
         Hologram.material.color =  Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
     }
 
@@ -127,11 +131,6 @@ public class KalmanFilter : MonoBehaviour
         {
             UpdatePrediction((Vector3)_measurement);
             _measurement = null;
-        }
-        else
-        {
-            //x = xtilde;
-            //P = Ptilde;
         }
         
         KalmanPosition.transform.position = new Vector3((float) x[0],0, (float) x[1]);

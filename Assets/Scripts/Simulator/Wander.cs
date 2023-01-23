@@ -22,6 +22,7 @@ namespace Simulator
 
 		private void Awake ()
 		{
+			Random.InitState(42);
 			controller = GetComponent<CharacterController>();
 
 			// Set random initial rotation
@@ -31,7 +32,7 @@ namespace Simulator
 			StartCoroutine(NewHeading());
 		}
 
-		private void Update ()
+		private void FixedUpdate ()
 		{
 			Vector3 vectorToCenter = Vector3.zero - transform.position;
 			float maxRadiansDelta = Mathf.Exp(vectorToCenter.magnitude)/ (1000 * maxDistanceFactor);

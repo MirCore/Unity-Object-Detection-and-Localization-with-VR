@@ -22,12 +22,6 @@ public class ObjectTracker : MonoBehaviour
     public void SetNewDetectionData(IEnumerable<Detection> detections)
     {
         List<Point> points = new List<Point>();
-
-        foreach (KalmanFilter kalmanFilter in KalmanManager.Instance.KalmanFilters.Where(kalmanFilter => kalmanFilter == null))
-        {
-            KalmanManager.Instance.KalmanFilters.Remove(kalmanFilter);
-            break;
-        }
         
         foreach (Detection detection in detections)
         {
@@ -71,7 +65,7 @@ public class ObjectTracker : MonoBehaviour
         for (int i = 0; i < points.Count; i++)
         {
             // Find pair of KalmanFilter and Point with smallest distance
-            FindMinIndexOfMulti(distanceArray, out int kalman, out int point);
+            HelperFunctions.FindMinIndexOfMulti(distanceArray, out int kalman, out int point);
 
             // Send Point to KalmanFilter or Instantiate a new KalmanFilter if the distance is higher than the threshold
             if (float.IsPositiveInfinity(distanceArray[kalman][point]))
@@ -113,22 +107,5 @@ public class ObjectTracker : MonoBehaviour
         }
 
         return distanceMultiArray;
-    }
-
-    private static void FindMinIndexOfMulti(IReadOnlyList<float[]> arr, out int index, out int element)
-    {
-        index = 0;
-        element = 0;
-        for (int i = 0; i < arr.Count; i++)
-        {
-            for (int e = 0; e < arr[i].Length; e++)
-            {
-                if (!(arr[i][e] < arr[index][element])) continue;
-                
-                index = i;
-                element = e;
-            }
-            
-        }
     }
 }
