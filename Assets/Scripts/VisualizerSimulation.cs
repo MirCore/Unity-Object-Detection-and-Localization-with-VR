@@ -12,7 +12,7 @@ sealed class VisualizerSimulation: MonoBehaviour
     [SerializeField] RawImage _preview = null;
     [SerializeField] Marker _markerPrefab = null;
     
-    [SerializeField] private ObjectTracker Tracker;
+    private ObjectTracker _objectTracker;
 
     #endregion
 
@@ -27,6 +27,7 @@ sealed class VisualizerSimulation: MonoBehaviour
 
     void Start()
     {
+        _objectTracker = gameObject.AddComponent<ObjectTracker>();
         _detector = new ObjectDetector(_resources);
         for (var i = 0; i < _markers.Length; i++)
             _markers[i] = Instantiate(_markerPrefab, _preview.transform);
@@ -51,7 +52,7 @@ sealed class VisualizerSimulation: MonoBehaviour
             _markers[i++].SetAttributes(d);
         }
         
-        Tracker.SetNewDetectionData(_detector.Detections);
+        _objectTracker.SetNewDetectionData(_detector.Detections);
 
         for (; i < _markers.Length; i++) _markers[i].Hide();
 

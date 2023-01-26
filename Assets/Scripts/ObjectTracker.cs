@@ -7,21 +7,19 @@ using YoloV4Tiny;
 public class ObjectTracker : MonoBehaviour
 {
     [Header("Object-detection settings")]
-    [SerializeField] private bool StereoImage = false;
+    private bool StereoImage = false;
     
     [Header("Raycast setting")]
-    [SerializeField] private int MaxRayDistance = 30;
+    private int MaxRayDistance = 30;
     
     private CameraToWorld _cameraToWorld;
-
-    private void Start()
-    {
-        _cameraToWorld = new CameraToWorld(Camera.main);
-    }
+    
+    private List<List<Point>> _gizmoList = new ();
 
     public void SetNewDetectionData(IEnumerable<Detection> detections)
     {
-        List<Point> points = new List<Point>();
+        List<Point> points = new();
+        _cameraToWorld ??= new CameraToWorld(Camera.main);
         
         foreach (Detection detection in detections)
         {
@@ -41,6 +39,7 @@ public class ObjectTracker : MonoBehaviour
             return;
 
         ProcessKalman(points);
+        _gizmoList.Add(new List<Point>(points));
     }
 
     public void SetNewSimulationData(List<Point> points)
@@ -107,5 +106,23 @@ public class ObjectTracker : MonoBehaviour
         }
 
         return distanceMultiArray;
+    }
+    
+    private void OnDrawGizmos()
+    {
+        int count = _gizmoList.Count - 1;
+        for (int i = count; i >= 0 ; i--)
+        {
+            Color color = Color.HSVToRGB(0, 1f / count * i, 1);
+            foreach (Point point in _gizmoList[i])
+            {
+                GizmosUtils.DrawText(GUI.skin, "O", new Vector3(point.X, 0, point.Z), color: color, fontSize: 10);
+            }
+        }
+
+        if (_gizmoList.Count > 100)
+        {
+            _gizmoList.RemoveAt(0);
+        }
     }
 }

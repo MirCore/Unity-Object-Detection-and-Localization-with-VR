@@ -10,14 +10,14 @@ using UnityEngine;
 public class KalmanManager : MonoBehaviour
 {
     public static KalmanManager Instance { get; private set; }
-    [SerializeField] public List<KalmanFilter> KalmanFilters = new List<KalmanFilter>();
-    [SerializeField] private GameObject _kalmanFilter;
+    public List<KalmanFilter> KalmanFilters = new();
+    [SerializeField] private GameObject _kalmanFilterPrefab;
 
-    [SerializeField] private DetectionSimulator _detectionSimulator;
     [SerializeField] private TMP_Text text;
-    
+
     private float NEES;
     private int NEEScount;
+    private KalmanState _kalmanState;
 
     private void Awake()
     {
@@ -26,56 +26,63 @@ public class KalmanManager : MonoBehaviour
         Instance = this;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        List<Tuple<KalmanFilter, CharacterController>> kalmanSimulationPairs = GetKalmanSimulationPairs();
+        List<Tuple<KalmanFilter, SimulationController>> kalmanSimulationPairs = GetKalmanSimulationPairs();
         CalculateNormalizedEstimatedErrorSquared(kalmanSimulationPairs);
     }
 
-    private void CalculateNormalizedEstimatedErrorSquared(List<Tuple<KalmanFilter, CharacterController>> kalmanSimulationPairs)
+    private void CalculateNormalizedEstimatedErrorSquared(List<Tuple<KalmanFilter, SimulationController>> kalmanSimulationPairs)
     {
         if (kalmanSimulationPairs == null)
             return;
         
-        foreach (Tuple<KalmanFilter, CharacterController> kalmanSimulationPair in kalmanSimulationPairs)
+        foreach ((KalmanFilter kalman, SimulationController simulatedObject) in kalmanSimulationPairs)
         {
-            KalmanFilter kalman = kalmanSimulationPair.Item1;
-            Vector3 simulatedObjectVelocity = kalmanSimulationPair.Item2.velocity;
-            Vector3 simulatedObjectPosition = kalmanSimulationPair.Item2.transform.position;
-            
             Matrix<double> groundTruth = DenseMatrix.OfArray(new double[,] { 
-                { simulatedObjectPosition.x }, 
-                { simulatedObjectPosition.z }, 
-                { simulatedObjectVelocity.x },
-                { simulatedObjectVelocity.z }});
+                { simulatedObject.PositionVector3.x }, 
+                { simulatedObject.PositionVector3.z }, 
+                { simulatedObject.VelocityVector3.x },
+                { simulatedObject.VelocityVector3.z }});
             Matrix<double> x = groundTruth - DenseMatrix.OfColumnVectors(kalman.x);
 
-
-            Matrix<double> normalizedEstimatedErrorSquared = x.Transpose() * kalmanSimulationPair.Item1.P.Inverse() * x;
+            Matrix<double> normalizedEstimatedErrorSquared = x.Transpose() * kalman.P.Inverse() * x;
             NEES += (float) normalizedEstimatedErrorSquared[0, 0];
             NEEScount++;
             text.SetText((NEES / NEEScount).ToString());
+
+            _kalmanState = new KalmanState
+            {
+                GroundTruthPosition = simulatedObject.PositionVector2,
+                GroundTruthVelocity = simulatedObject.VelocityVector2,
+                KalmanPosition = kalman.GetVector2Position(),
+                KalmanVelocity = kalman.GetVector2Velocity(),
+                KalmanP = kalman.GetP(),
+                Measurement = kalman.GetMeasurement(),
+                Time = Time.realtimeSinceStartup,
+                Frame = Time.frameCount
+            };
         }
     }
 
-    private List<Tuple<KalmanFilter, CharacterController>> GetKalmanSimulationPairs()
+    private List<Tuple<KalmanFilter, SimulationController>> GetKalmanSimulationPairs()
     {
-        if (_detectionSimulator.SimulatedObjects.Count == 0 || KalmanFilters.Count == 0)
+        if (GameManager.Instance.SimulatedObjects.Count == 0 || KalmanFilters.Count == 0)
             return null;
         
         float[][] distanceArray = CreateDistanceArray();
-        List<Tuple<KalmanFilter, CharacterController>> kalmanSimulationPairs = new List<Tuple<KalmanFilter, CharacterController>>();
-        for (int i = 0; i < _detectionSimulator.SimulatedObjects.Count; i++)
+        List<Tuple<KalmanFilter, SimulationController>> kalmanSimulationPairs = new();
+        for (int i = 0; i < GameManager.Instance.SimulatedObjects.Count; i++)
         {
             // Find pair of KalmanFilter and Point with smallest distance
             HelperFunctions.FindMinIndexOfMulti(distanceArray, out int kalman, out int simulatedObject);
 
-            kalmanSimulationPairs.Add(new Tuple<KalmanFilter, CharacterController>(KalmanFilters[kalman], _detectionSimulator.SimulatedObjects[simulatedObject]));
+            kalmanSimulationPairs.Add(new Tuple<KalmanFilter, SimulationController>(KalmanFilters[kalman], GameManager.Instance.SimulatedObjects[simulatedObject]));
         
             // Set the distance of the used KalmanFilter and Point to Infinity in the distanceArray
             for (int k = 0; k < KalmanFilters.Count; k++)
             {
-                for (int s = 0; s < _detectionSimulator.SimulatedObjects.Count; s++)
+                for (int s = 0; s < GameManager.Instance.SimulatedObjects.Count; s++)
                 {
                     if (k == kalman || s == simulatedObject)
                         distanceArray[k][s] = float.PositiveInfinity;
@@ -93,11 +100,11 @@ public class KalmanManager : MonoBehaviour
 
         for (int k = 0; k < KalmanFilters.Count; k++)
         {
-            distanceMultiArray[k] = new float[_detectionSimulator.SimulatedObjects.Count];
+            distanceMultiArray[k] = new float[GameManager.Instance.SimulatedObjects.Count];
             
-            for (int p = 0; p < _detectionSimulator.SimulatedObjects.Count; p++)
+            for (int p = 0; p < GameManager.Instance.SimulatedObjects.Count; p++)
             {
-                distanceMultiArray[k][p] = Vector3.Distance(KalmanFilters[k].transform.position, _detectionSimulator.SimulatedObjects[p].transform.position);
+                distanceMultiArray[k][p] = Vector3.Distance(KalmanFilters[k].transform.position, GameManager.Instance.SimulatedObjects[p].transform.position);
             }
         }
 
@@ -107,7 +114,7 @@ public class KalmanManager : MonoBehaviour
 
     public void InstantiateNewKalmanFilter()
     {
-        Instantiate(_kalmanFilter, new Vector3(), new Quaternion());
+        Instantiate(_kalmanFilterPrefab, new Vector3(), new Quaternion());
     }
 
     public void SetNewKalmanFilter(KalmanFilter kalmanFilter)
@@ -123,5 +130,10 @@ public class KalmanManager : MonoBehaviour
     public float GetNEESValue()
     {
         return NEES / NEEScount;
+    }
+
+    public KalmanState GetKalmanState()
+    {
+        return _kalmanState;
     }
 }

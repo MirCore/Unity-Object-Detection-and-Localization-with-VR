@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4417964409761003272}
   - component: {fileID: 4417964409761003287}
   - component: {fileID: 4417964409761003286}
+  - component: {fileID: 6783116798449768294}
   m_Layer: 0
   m_Name: NPC
   m_TagString: Untagged
@@ -68,6 +69,19 @@ MonoBehaviour:
   directionChangeInterval: 1
   maxHeadingChange: 30
   maxDistanceFactor: 10
+--- !u!114 &6783116798449768294
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4417964409761003285}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3084e88c2922764c84946e355419578, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  velocityGameObject: {fileID: 0}
 --- !u!1001 &4417964409326529559
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -11,8 +11,7 @@ namespace Simulator
    // [ExecuteInEditMode]
     public class DetectionSimulator : MonoBehaviour
     {
-        [SerializeField] private ObjectTracker ObjectTracker;
-        [SerializeField] public List<CharacterController> SimulatedObjects = new List<CharacterController>();
+        private ObjectTracker _objectTracker;
         [SerializeField] private GameObject SimulationObject;
         [SerializeField] private int NumberOfSimulationSpawnsOnStartup;
         [SerializeField] private float Noise = 1f;
@@ -41,6 +40,7 @@ namespace Simulator
         private void Start()
         {
             Random.InitState(42);
+            _objectTracker = new ObjectTracker();
             
             for (int i = 0; i < NumberOfSimulationSpawnsOnStartup; i++)
             {
@@ -52,22 +52,22 @@ namespace Simulator
 
         private void SpawnSimulation()
         {
-            SimulatedObjects.Add(Instantiate(SimulationObject, new Vector3(Random.Range(-5, 5), 0, Random.Range(-5, 5)),
-                Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0))).GetComponent<CharacterController>());
+            Instantiate(SimulationObject, new Vector3(Random.Range(-5, 5), 0, Random.Range(-5, 5)),
+                Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0)));
         }
 
         private IEnumerator Measure()
         {
             while (true)
             {
-                if (!MeasurePosition || SimulatedObjects.Count < 0)
+                if (!MeasurePosition || GameManager.Instance.SimulatedObjects.Count < 0)
                 {
                     yield return new WaitForSeconds(MeasureDelta);
                     continue;
                 }
                     
                 _points.Clear();
-                foreach (Vector3 position in SimulatedObjects.Select(simulatedObject => simulatedObject.transform.position))
+                foreach (Vector3 position in GameManager.Instance.SimulatedObjects.Select(simulatedObject => simulatedObject.transform.position))
                 {
                     _points.Add(new Point
                     {
@@ -78,7 +78,7 @@ namespace Simulator
 
                 _gizmoList.Add(new List<Point>(_points));
                 if (SendMeasuredPositions)
-                    ObjectTracker.SetNewSimulationData(_points);
+                    _objectTracker.SetNewSimulationData(_points);
 
                 yield return new WaitForSeconds(MeasureDelta);
             }

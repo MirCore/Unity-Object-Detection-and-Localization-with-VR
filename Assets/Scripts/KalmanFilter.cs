@@ -14,19 +14,19 @@ public class KalmanFilter : MonoBehaviour
     private static Matrix<double> FT;
     private static Matrix<double> H;
     private static Matrix<double> HT;
+    private static Matrix<double> G;
     private static Matrix<double> Gd;
     private static Matrix<double> I;
     private static Matrix<double> R;
     private static Matrix<double> GdQGdT;
+    private static Matrix<double> Q;
     public Matrix<double> P { get; private set; }
     public Vector<double> x { get; private set; }
 
     //private Vector<double> xtilde;
     //private Matrix<double> Ptilde;
     
-    private static float Ts = 1 / 60;
-    [SerializeField] private float Q = 1;
-    [SerializeField] private float RValue = 1;
+    private static float Ts;
 
     [SerializeField] private GameObject KalmanPosition;
     [SerializeField] private Renderer Hologram;
@@ -35,14 +35,13 @@ public class KalmanFilter : MonoBehaviour
     [SerializeField] private int SelfDestructDistance = 500;
 
 
-    private Vector3? _measurement = null;
+    private Vector2? _measurement = null;
 
     // Start is called before the first frame update
     private void Awake()
     {
-        Q = GameManager.Instance.GetQ();
-        RValue = GameManager.Instance.GetRValue();
-        
+        double omegaSquared = GameManager.Instance.GetOmegaSquared();
+       
         Ts = Time.fixedDeltaTime;
         
         // State-Transition:
@@ -64,22 +63,22 @@ public class KalmanFilter : MonoBehaviour
         });
 
         HT = H.Transpose();
-        
+
         Gd = DenseMatrix.OfArray(new double[,]
         {
-            {math.sqrt(Ts)/2, 0},
-            {0, math.sqrt(Ts)/2},
+            {Ts*Ts/2, 0},
+            {0, Ts*Ts/2},
             {Ts, 0},
             {0, Ts}
         });
 
-        GdQGdT = Gd * Q * Gd.Transpose();
-        
+        GdQGdT = Gd * omegaSquared * Gd.Transpose();
+
         I = DenseMatrix.CreateIdentity(4);
         
-        R = DenseMatrix.OfDiagonalArray(new double[] {RValue, RValue});
+        R = DenseMatrix.OfDiagonalArray(new double[] {GameManager.Instance.GetRx(), GameManager.Instance.GetRy()});
         
-        P = DenseMatrix.OfDiagonalArray(new double[] {1000, 1000, 1000, 1000});
+        P = DenseMatrix.OfDiagonalArray(new double[] {100, 100, 10, 10});
          
         // Initial
         x = DenseVector.OfArray(new double[] {0, 0, 0, 0});
@@ -91,27 +90,6 @@ public class KalmanFilter : MonoBehaviour
     {
         Random.InitState(42);
         Hologram.material.color =  Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
-    }
-
-    private void UpdateMatrix(float time)
-    {
-        F = DenseMatrix.OfArray(new double[,]
-        {
-            {1,0,time,0},
-            {0,1,0,time},
-            {0,0,1,0},
-            {0,0,0,1}
-        });
-
-        Gd = DenseMatrix.OfArray(new double[,]
-        {
-            {math.sqrt(time)/2, 0},
-            {0, math.sqrt(time)/2},
-            {time/2, 0},
-            {0, time/2}
-        }); 
-        
-        GdQGdT = Gd * Q * Gd.Transpose();
     }
 
     private void OnValidate()
@@ -129,12 +107,11 @@ public class KalmanFilter : MonoBehaviour
         // Update
         if (_measurement != null)
         {
-            UpdatePrediction((Vector3)_measurement);
+            UpdatePrediction((Vector2) _measurement);
             _measurement = null;
         }
         
-        KalmanPosition.transform.position = new Vector3((float) x[0],0, (float) x[1]);
-        KalmanPosition.transform.localScale = new Vector3((float)P[0,0], 0.1f, (float)P[1,1]);
+        UpdateKalmanGameObject();
 
         if (!SelfDestruct) return;
         if (P[0,0] > SelfDestructDistance)
@@ -144,15 +121,22 @@ public class KalmanFilter : MonoBehaviour
         }
     }
 
+    private void UpdateKalmanGameObject()
+    {
+        KalmanPosition.transform.position = new Vector3((float)x[0], 0, (float)x[1]);
+        KalmanPosition.transform.localScale = new Vector3((float)P[0, 0], 0.1f, (float)P[1, 1]);
+        Debug.DrawLine(transform.position, transform.position + new Vector3((float)x[2], 0, (float)x[3] ), Color.red);
+    }
+
     private void Predict()
     {
         x = F * x;
         P = F * P * FT + GdQGdT;
     }
 
-    private void UpdatePrediction(Vector3 measurement)
+    private void UpdatePrediction(Vector2 measurement)
     {
-        DenseVector z = DenseVector.OfArray(new double[] {measurement.x, measurement.z}); 
+        DenseVector z = DenseVector.OfArray(new double[] {measurement.x, measurement.y}); 
         Vector<double> y = z - H * x;
         Matrix<double> PHT = P * HT;
         Matrix<double> S = H * PHT + R;
@@ -167,18 +151,37 @@ public class KalmanFilter : MonoBehaviour
     
     public void SetNewMeasurement(Vector2 measurement)
     {
-        _measurement = new Vector3(measurement.x, 0, measurement.y);
+        _measurement = measurement;
     }
     
     private void OnDrawGizmos()
     {
-        if (x != null)
-            GizmosUtils.DrawText(GUI.skin, "x", new Vector3((float)x[0], 0, (float)x[1]), color: Color.black, fontSize: 10);
+        if (x == null)
+            return;
+        
+        GizmosUtils.DrawText(GUI.skin, "x", new Vector3((float)x[0], 0, (float)x[1]), color: Color.black, fontSize: 10);
     }
 
     public Vector2 GetVector2Position()
     {
         Vector3 position = transform.position;
         return new Vector2(position.x, position.z);
+    }
+
+    public Vector2 GetVector2Velocity()
+    {
+        return new Vector2((float)x[2], (float)x[3]);
+    }
+
+    public Vector2 GetP()
+    {
+        return new Vector2((float)P[0, 0], (float)P[1, 1]);
+    }
+
+    public Vector2 GetMeasurement()
+    {
+        if (_measurement != null)
+            return (Vector2)_measurement;
+        return Vector2.zero;
     }
 }

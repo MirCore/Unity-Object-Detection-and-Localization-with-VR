@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7831495390002388124}
   - component: {fileID: 7831495390002388125}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Kalman
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45,8 +45,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3868007669215c04d88d238829dd03d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Q: 10
-  RValue: 10
   KalmanPosition: {fileID: 7831495390002388126}
   Hologram: {fileID: 2909607148437311880}
   SelfDestruct: 1
@@ -113,6 +111,10 @@ PrefabInstance:
     - target: {fileID: 6903723187001909290, guid: 91c3fdebffcc3734bbd58d4fb830eb15, type: 3}
       propertyPath: m_Name
       value: Hologram-Green
+      objectReference: {fileID: 0}
+    - target: {fileID: 6903723187001909290, guid: 91c3fdebffcc3734bbd58d4fb830eb15, type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 91c3fdebffcc3734bbd58d4fb830eb15, type: 3}
