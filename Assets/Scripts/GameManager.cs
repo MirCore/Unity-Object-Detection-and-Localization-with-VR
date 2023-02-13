@@ -56,7 +56,7 @@ public class GameManager : MonoBehaviour
         _detectionSimulator.enabled = EnableMeasureSimulation;
         
         if (DurationSeconds != 0)
-            StartCoroutine(StopGame(DurationSeconds));
+            StartCoroutine(PauseGame(DurationSeconds));
         if (RecordPositions)
         {
             string path = "Assets/Output";

@@ -34,6 +34,9 @@ public class KalmanFilter : MonoBehaviour
     [SerializeField] private bool SelfDestruct = true;       
     [SerializeField] private int SelfDestructDistance = 500;
 
+    private Vector2 PositionMeanWithoutKalman;
+    private List<Vector2> LastPositions = new ();
+
 
     private Vector2? _measurement = null;
 
@@ -107,6 +110,8 @@ public class KalmanFilter : MonoBehaviour
         // Update
         if (_measurement != null)
         {
+            LastPositions.Add((Vector2) _measurement);
+            CalculateMeanPositionWithoutKalman();
             UpdatePrediction((Vector2) _measurement);
             _measurement = null;
         }
@@ -119,6 +124,15 @@ public class KalmanFilter : MonoBehaviour
             KalmanManager.Instance.RemoveKalmanFilter(this);
             Destroy(gameObject);
         }
+    }
+
+    private void CalculateMeanPositionWithoutKalman()
+    {
+       PositionMeanWithoutKalman = new Vector2( LastPositions.Average(pos=>pos.x),LastPositions.Average(pos=>pos.y));
+       while (LastPositions.Count > 4)
+       {
+           LastPositions.RemoveAt(0);
+       }
     }
 
     private void UpdateKalmanGameObject()
@@ -183,5 +197,10 @@ public class KalmanFilter : MonoBehaviour
         if (_measurement != null)
             return (Vector2)_measurement;
         return Vector2.zero;
+    }
+
+    public Vector2 GetPositionMeanWithoutKalman()
+    {
+        return PositionMeanWithoutKalman;
     }
 }

@@ -16,6 +16,8 @@ public class KalmanManager : MonoBehaviour
     [SerializeField] private TMP_Text text;
 
     private float NEES;
+    private float MSEKalman;
+    private float MSE;
     private int NEEScount;
     private KalmanState _kalmanState;
 
@@ -48,8 +50,12 @@ public class KalmanManager : MonoBehaviour
 
             Matrix<double> normalizedEstimatedErrorSquared = x.Transpose() * kalman.P.Inverse() * x;
             NEES += (float) normalizedEstimatedErrorSquared[0, 0];
+            MSE += (simulatedObject.PositionVector2 - kalman.GetPositionMeanWithoutKalman()).sqrMagnitude;
+            MSEKalman += (simulatedObject.PositionVector2 - kalman.GetVector2Position()).sqrMagnitude;
             NEEScount++;
-            text.SetText((NEES / NEEScount).ToString());
+            text.SetText("NEES: " + (NEES / NEEScount).ToString("F4") +
+                         "\n MSE: " + (MSE / NEEScount).ToString("F4") +
+                         "\n MSEKalman: " + (MSEKalman / NEEScount).ToString("F4"));
 
             _kalmanState = new KalmanState
             {
