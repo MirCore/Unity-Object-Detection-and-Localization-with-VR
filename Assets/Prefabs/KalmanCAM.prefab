@@ -45,9 +45,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 688ba437b0f7d87428dbcc13bdeed1d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Q: 1000
-  RValue: 10
-  KalmanPosition: {fileID: 7831495390002388126}
+  Ts: 0.02
+  Hologram: {fileID: 2909607148437311880}
+  SelfDestruct: 1
+  SelfDestructDistance: 500
 --- !u!1001 &7831495388921385079
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -117,6 +118,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 91c3fdebffcc3734bbd58d4fb830eb15, type: 3}
+--- !u!23 &2909607148437311880 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 4957917664636813823, guid: 91c3fdebffcc3734bbd58d4fb830eb15, type: 3}
+  m_PrefabInstance: {fileID: 7831495388921385079}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4047096235932576487 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6090312578260548240, guid: 91c3fdebffcc3734bbd58d4fb830eb15, type: 3}

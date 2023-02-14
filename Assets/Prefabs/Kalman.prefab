@@ -45,10 +45,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3868007669215c04d88d238829dd03d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  KalmanPosition: {fileID: 7831495390002388126}
   Hologram: {fileID: 2909607148437311880}
   SelfDestruct: 1
   SelfDestructDistance: 200
+  _kalmanFilterCam: {fileID: 7831495390002388126, guid: 57ee662c4f8383d409eb96ec632e9b7f, type: 3}
 --- !u!1001 &7831495388921385079
 PrefabInstance:
   m_ObjectHideFlags: 0

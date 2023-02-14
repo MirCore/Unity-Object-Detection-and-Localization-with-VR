@@ -6,7 +6,6 @@ using System.Linq;
 using Simulator;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class GameManager : MonoBehaviour
 {
@@ -16,7 +15,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private bool EnableYOLO = true;
     [SerializeField] private bool EnableMeasureSimulation = false;
     
-    private VisualizerSimulation _visualizerSimulation;
+    private Visualizer _visualizer;
     private DetectionSimulator _detectionSimulator;
 
     private List<KalmanState> _kalmanStates = new();
@@ -28,73 +27,41 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float Rx = 10;
     [SerializeField] private float Ry = 10;
     
-    [Header("File IO")]
-    private TextWriter _textWriter;
-    private string _fileData ;
-    [SerializeField] private string FilePath ;
-    private string[] _lines;
-    [SerializeField] private bool RecordPositions = false;
-    private int _frameNumber;
-    
+    public int FrameNumber { get; private set; }
 
     [Header("")]
     public List<SimulationController> SimulatedObjects = new();
-    [SerializeField] private SimulationController NPC;
     
     private void Awake()
     {
         if (Instance != null && Instance != this)
             Destroy(this);
         Instance = this;
+
+        //Time.timeScale = 0.5f;
     }
 
     private void Start()
     {
-        _visualizerSimulation = GetComponent<VisualizerSimulation>();
-        _visualizerSimulation.enabled = EnableYOLO;
+        _visualizer = GetComponent<Visualizer>();
+        _visualizer.enabled = EnableYOLO;
         _detectionSimulator = GetComponent<DetectionSimulator>();
-        _detectionSimulator.enabled = EnableMeasureSimulation;
+        if (_detectionSimulator != null)
+            _detectionSimulator.enabled = EnableMeasureSimulation;
         
         if (DurationSeconds != 0)
             StartCoroutine(PauseGame(DurationSeconds));
-        if (RecordPositions)
-        {
-            string path = "Assets/Output";
-            string fileName = "positions_" + DateTime.Now.ToString("HH_mm_ss");
-            string fullFileName = path + "/" + fileName + ".csv";
-            Debug.Log(fullFileName);
-            _textWriter = new StreamWriter(fullFileName, false);
-        }
-
-        if (FilePath == "")
-            return;
-        _fileData = File.ReadAllText(FilePath);
-        _lines = _fileData.Split("\n"[0]);
     }
 
     private void FixedUpdate()
     {
-        if (RecordPositions)
-        {
-            Vector3 position = SimulatedObjects.First().transform.position;
-            string text = "(" + position.x + "; " + position.y + "; " + position.z + ")";
-            _textWriter.WriteLine(text);
-        }
 
         KalmanState kalmanState = KalmanManager.Instance.GetKalmanState();
         if (kalmanState != null)
             _kalmanStates.Add(kalmanState);
-        
-        if (_lines == null)
-            return;
-        if (_frameNumber >= _lines.Length - 1)
-            return;
-        //_controller.transform.position += new Vector3(1 * Time.deltaTime, 0, 0);
-        string[] lineData = _lines[_frameNumber].Trim().Trim('(',')').Split(";"[0]);
-        Vector3 recordedPosition = new Vector3(float.Parse(lineData[0]), float.Parse(lineData[1]), float.Parse(lineData[2]));
-        NPC.LookAt(recordedPosition);
-        NPC.SetNewPosition(recordedPosition);
-        _frameNumber++;
+
+        FrameNumber++;
+        //Time.timeScale += 0.001f;
     }
     
     private void OnDestroy()
@@ -102,7 +69,6 @@ public class GameManager : MonoBehaviour
         WriteFile("kalman", "NEES: " + KalmanManager.Instance.GetNEESValue() + "; o^2: " + OmegaSquared + "; R: " + Rx + " " + Ry);
         WriteFileFromList("log", _kalmanStates);
 
-        _textWriter?.Close();
         Debug.Log(KalmanManager.Instance.GetNEESValue());
     }
 
@@ -161,7 +127,7 @@ public class GameManager : MonoBehaviour
         return Ry;
     }
 
-    private IEnumerator PauseGame(int seconds)
+    private static IEnumerator PauseGame(int seconds)
     {
         yield return new WaitForSeconds(seconds);
         EditorApplication.isPaused = true;

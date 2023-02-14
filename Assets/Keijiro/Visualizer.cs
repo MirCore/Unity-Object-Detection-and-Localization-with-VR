@@ -3,25 +3,25 @@ using UnityEngine.UI;
 using Klak.TestTools;
 using YoloV4Tiny;
 
-sealed class Visualizer : MonoBehaviour
+public class Visualizer : MonoBehaviour
 {
     #region Editable attributes
 
-    [SerializeField] ImageSource _source = null;
-    [SerializeField, Range(0, 1)] float _threshold = 0.5f;
-    [SerializeField] ResourceSet _resources = null;
-    [SerializeField] RawImage _preview = null;
-    [SerializeField] Marker _markerPrefab = null;
+    [SerializeField] Klak.TestTools.ImageSource _source;
+    [SerializeField, Range(0, 1)] protected float _threshold = 0.5f;
+    [SerializeField] protected ResourceSet _resources = null;
+    [SerializeField] protected RawImage _preview = null;
+    [SerializeField] protected Marker _markerPrefab = null;
     
     [SerializeField] private ObjectLocator Locator;
-    [SerializeField] private ObjectTracker Tracker;
+    [SerializeField] protected ObjectTracker Tracker;
 
     #endregion
 
     #region Internal objects
 
-    ObjectDetector _detector;
-    Marker[] _markers = new Marker[50];
+    protected ObjectDetector _detector;
+    protected Marker[] _markers = new Marker[50];
 
     #endregion
     

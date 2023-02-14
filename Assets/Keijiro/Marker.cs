@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using YoloV4Tiny;
 
-sealed class Marker : MonoBehaviour
+public class Marker : MonoBehaviour
 {
     RectTransform _parent;
     RectTransform _xform;

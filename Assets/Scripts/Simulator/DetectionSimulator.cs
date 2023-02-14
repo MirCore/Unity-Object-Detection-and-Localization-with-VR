@@ -40,7 +40,7 @@ namespace Simulator
         private void Start()
         {
             Random.InitState(42);
-            _objectTracker = new ObjectTracker();
+            _objectTracker = gameObject.AddComponent<ObjectTracker>();
             
             for (int i = 0; i < NumberOfSimulationSpawnsOnStartup; i++)
             {

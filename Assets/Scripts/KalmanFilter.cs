@@ -1,98 +1,98 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
-using Unity.Mathematics;
 using Random = UnityEngine.Random;
 
 [ExecuteInEditMode]
 public class KalmanFilter : MonoBehaviour
 {
-    private static Matrix<double> F;
-    private static Matrix<double> FT;
-    private static Matrix<double> H;
-    private static Matrix<double> HT;
-    private static Matrix<double> G;
-    private static Matrix<double> Gd;
-    private static Matrix<double> I;
-    private static Matrix<double> R;
-    private static Matrix<double> GdQGdT;
-    private static Matrix<double> Q;
-    public Matrix<double> P { get; private set; }
-    public Vector<double> x { get; private set; }
+    public Matrix<double> F;
+    public Matrix<double> FT;
+    public Matrix<double> H;
+    public Matrix<double> HT;
+    public Matrix<double> Gd;
+    public Matrix<double> I;
+    public Matrix<double> R;
+    public Matrix<double> GdQGdT;
+    public Matrix<double> Q;
+    public Matrix<double> P { get; set; }
+    public Vector<double> x { get; set; }
 
-    //private Vector<double> xtilde;
-    //private Matrix<double> Ptilde;
-    
-    private static float Ts;
+    public float Ts;
 
-    [SerializeField] private GameObject KalmanPosition;
-    [SerializeField] private Renderer Hologram;
+    private GameObject KalmanPosition;
+    public Renderer Hologram;
 
     [SerializeField] private bool SelfDestruct = true;       
     [SerializeField] private int SelfDestructDistance = 500;
+    
+    private List<Vector3> KalmanPositions = new ();
 
     private Vector2 PositionMeanWithoutKalman;
-    private List<Vector2> LastPositions = new ();
+    private List<Vector2> LastMeasurementPositions = new ();
 
 
     private Vector2? _measurement = null;
+    private Color _color;
 
-    // Start is called before the first frame update
     private void Awake()
     {
-        double omegaSquared = GameManager.Instance.GetOmegaSquared();
-       
+        PopulateMatrices(GameManager.Instance.GetOmegaSquared());
+
+        KalmanManager.Instance.SetNewKalmanFilter(this);
+    }
+
+    private void PopulateMatrices(double omegaSquared)
+    {
         Ts = Time.fixedDeltaTime;
-        
+
         // State-Transition:
         F = DenseMatrix.OfArray(new double[,]
         {
-            {1,0,Ts,0},
-            {0,1,0,Ts},
-            {0,0,1,0},
-            {0,0,0,1}
+            { 1, 0, Ts, 0 },
+            { 0, 1, 0, Ts },
+            { 0, 0, 1, 0 },
+            { 0, 0, 0, 1 }
         });
 
         FT = F.Transpose();
-        
+
         // 
         H = DenseMatrix.OfArray(new double[,]
         {
-            {1,0,0,0},
-            {0,1,0,0}
+            { 1, 0, 0, 0 },
+            { 0, 1, 0, 0 }
         });
 
         HT = H.Transpose();
 
         Gd = DenseMatrix.OfArray(new double[,]
         {
-            {Ts*Ts/2, 0},
-            {0, Ts*Ts/2},
-            {Ts, 0},
-            {0, Ts}
+            { Ts * Ts / 2, 0 },
+            { 0, Ts * Ts / 2 },
+            { Ts, 0 },
+            { 0, Ts }
         });
 
         GdQGdT = Gd * omegaSquared * Gd.Transpose();
 
         I = DenseMatrix.CreateIdentity(4);
-        
-        R = DenseMatrix.OfDiagonalArray(new double[] {GameManager.Instance.GetRx(), GameManager.Instance.GetRy()});
-        
-        P = DenseMatrix.OfDiagonalArray(new double[] {100, 100, 10, 10});
-         
-        // Initial
-        x = DenseVector.OfArray(new double[] {0, 0, 0, 0});
 
-        KalmanManager.Instance.SetNewKalmanFilter(this);
+        R = DenseMatrix.OfDiagonalArray(new double[] { GameManager.Instance.GetRx(), GameManager.Instance.GetRy() });
+
+        P = DenseMatrix.OfDiagonalArray(new double[] { 100, 100, 10, 10 });
+
+        // Initial
+        x = DenseVector.OfArray(new double[] { 0, 0, 0, 0 });
     }
 
     private void Start()
     {
-        Random.InitState(42);
-        Hologram.material.color =  Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
+        KalmanPosition = gameObject;
+        _color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
+        Hologram.material.color =  _color;
     }
 
     private void OnValidate()
@@ -110,7 +110,7 @@ public class KalmanFilter : MonoBehaviour
         // Update
         if (_measurement != null)
         {
-            LastPositions.Add((Vector2) _measurement);
+            LastMeasurementPositions.Add((Vector2) _measurement);
             CalculateMeanPositionWithoutKalman();
             UpdatePrediction((Vector2) _measurement);
             _measurement = null;
@@ -128,18 +128,20 @@ public class KalmanFilter : MonoBehaviour
 
     private void CalculateMeanPositionWithoutKalman()
     {
-       PositionMeanWithoutKalman = new Vector2( LastPositions.Average(pos=>pos.x),LastPositions.Average(pos=>pos.y));
-       while (LastPositions.Count > 4)
+       PositionMeanWithoutKalman = new Vector2( LastMeasurementPositions.Average(pos=>pos.x),LastMeasurementPositions.Average(pos=>pos.y));
+       while (LastMeasurementPositions.Count > 4)
        {
-           LastPositions.RemoveAt(0);
+           LastMeasurementPositions.RemoveAt(0);
        }
     }
 
     private void UpdateKalmanGameObject()
     {
-        KalmanPosition.transform.position = new Vector3((float)x[0], 0, (float)x[1]);
+        Vector3 newPosition = GetVector3Position();
+        KalmanPosition.transform.position = newPosition;
         KalmanPosition.transform.localScale = new Vector3((float)P[0, 0], 0.1f, (float)P[1, 1]);
-        Debug.DrawLine(transform.position, transform.position + new Vector3((float)x[2], 0, (float)x[3] ), Color.red);
+        Debug.DrawLine(newPosition, newPosition + GetVector3Velocity(), Color.red);
+        KalmanPositions.Add(newPosition);
     }
 
     private void Predict()
@@ -170,10 +172,26 @@ public class KalmanFilter : MonoBehaviour
     
     private void OnDrawGizmos()
     {
+        for (int i = 0; i < KalmanPositions.Count - 1; i++)
+        {
+            Gizmos.color = _color;
+            Gizmos.DrawLine(KalmanPositions[i], KalmanPositions[i+1]);
+        }
+        
         if (x == null)
             return;
         
         GizmosUtils.DrawText(GUI.skin, "x", new Vector3((float)x[0], 0, (float)x[1]), color: Color.black, fontSize: 10);
+    }
+
+    private Vector3 GetVector3Position()
+    {
+        return new Vector3((float)x[0], 0, (float)x[1]);
+    }
+
+    private Vector3 GetVector3Velocity()
+    {
+        return new Vector3((float)x[2], 0, (float)x[3]);
     }
 
     public Vector2 GetVector2Position()

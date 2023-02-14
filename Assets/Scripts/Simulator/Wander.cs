@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace Simulator
@@ -10,7 +11,8 @@ namespace Simulator
 	[RequireComponent(typeof(CharacterController))]
 	public class Wander : MonoBehaviour
 	{
-		public float speed = 5;
+		[SerializeField] private float speed = 1;
+		[SerializeField] private float acceleration = 0.001f;
 		public float directionChangeInterval = 1;
 		public float maxHeadingChange = 30;
 
@@ -19,10 +21,12 @@ namespace Simulator
 		CharacterController controller;
 		float heading;
 		Vector3 targetRotation;
+		
+		[SerializeField] private int Seed = 42;
 
-		private void Awake ()
+		private void Start ()
 		{
-			Random.InitState(42);
+			Random.InitState(Seed);
 			controller = GetComponent<CharacterController>();
 
 			// Set random initial rotation
@@ -43,6 +47,8 @@ namespace Simulator
 			transform.eulerAngles = Vector3.Slerp(transform.eulerAngles, targetRotation, Time.deltaTime * directionChangeInterval);
 			Vector3 forward = transform.TransformDirection(Vector3.forward);
 			controller.SimpleMove(forward * speed);
+
+			speed += acceleration;
 		}
 
 		/// <summary>
