@@ -257,6 +257,7 @@ MonoBehaviour:
   OmegaSquared: 30
   Rx: 2
   Ry: 30
+  Messpunkte: 1
   SimulatedObjects: []
 --- !u!4 &338167175
 Transform:
@@ -413,7 +414,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AspectMode: 0
-  m_AspectRatio: 1.7773852
+  m_AspectRatio: 0.34668717
 --- !u!114 &1082046619
 MonoBehaviour:
   m_ObjectHideFlags: 0

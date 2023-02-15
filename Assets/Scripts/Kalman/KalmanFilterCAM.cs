@@ -1,55 +1,57 @@
-using UnityEngine;
-using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using Unity.Mathematics;
+using UnityEngine;
 
-[ExecuteInEditMode]
-public class KalmanFilterCAM : KalmanFilter
+namespace Kalman
 {
-    private void PopulateMatrices(double omegaSquared)
+    [ExecuteInEditMode]
+    public class KalmanFilterCAM : KalmanFilter
     {
-        Ts = Time.fixedDeltaTime;
-
-        F = DenseMatrix.OfArray(new double[,]
+        private void PopulateMatrices(double omegaSquared)
         {
-            { 1, Ts, math.sqrt(Ts) / 2, 0, 0, 0 },
-            { 0, 1, Ts, 0, 0, 0 },
-            { 0, 0, 1, 0, 0, 0 },
-            { 0, 0, 0, 1, Ts, math.sqrt(Ts) / 2 },
-            { 0, 0, 0, 0, 1, Ts },
-            { 0, 0, 0, 0, 0, 1 }
-        });
+            Ts = Time.fixedDeltaTime;
 
-        FT = F.Transpose();
+            F = DenseMatrix.OfArray(new double[,]
+            {
+                { 1, Ts, math.sqrt(Ts) / 2, 0, 0, 0 },
+                { 0, 1, Ts, 0, 0, 0 },
+                { 0, 0, 1, 0, 0, 0 },
+                { 0, 0, 0, 1, Ts, math.sqrt(Ts) / 2 },
+                { 0, 0, 0, 0, 1, Ts },
+                { 0, 0, 0, 0, 0, 1 }
+            });
 
-        H = DenseMatrix.OfArray(new double[,]
-        {
-            { 1, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 1, 0, 0 }
-        });
+            FT = F.Transpose();
 
-        HT = H.Transpose();
+            H = DenseMatrix.OfArray(new double[,]
+            {
+                { 1, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 1, 0, 0 }
+            });
 
-        Gd = DenseMatrix.OfArray(new double[,]
-        {
-            { Ts * Ts / 2, 0 },
-            { Ts, 0 },
-            { 1, 0 },
-            { 0, Ts * Ts / 2 },
-            { 0, Ts },
-            { 0, 1 }
-        });
+            HT = H.Transpose();
 
-        GdQGdT = Gd * omegaSquared * Gd.Transpose();
+            Gd = DenseMatrix.OfArray(new double[,]
+            {
+                { Ts * Ts / 2, 0 },
+                { Ts, 0 },
+                { 1, 0 },
+                { 0, Ts * Ts / 2 },
+                { 0, Ts },
+                { 0, 1 }
+            });
 
-        I = DenseMatrix.CreateIdentity(6);
+            GdQGdT = Gd * omegaSquared * Gd.Transpose();
 
-        R = DenseMatrix.OfDiagonalArray(new double[] { GameManager.Instance.GetRx(), GameManager.Instance.GetRy() });
+            I = DenseMatrix.CreateIdentity(6);
 
-        P = DenseMatrix.OfDiagonalArray(new double[] { 1000, 1000, 100, 100, 10, 10 });
+            R = DenseMatrix.OfDiagonalArray(new double[] { GameManager.Instance.GetRx(), GameManager.Instance.GetRy() });
 
-        // Initial
-        x = DenseVector.OfArray(new double[] { 0, 0, 0, 0, 0, 0 });
+            P = DenseMatrix.OfDiagonalArray(new double[] { 1000, 1000, 100, 100, 10, 10 });
+
+            // Initial
+            x = DenseVector.OfArray(new double[] { 0, 0, 0, 0, 0, 0 });
+        }
+
     }
-
 }

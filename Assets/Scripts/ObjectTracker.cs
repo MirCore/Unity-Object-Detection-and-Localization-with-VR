@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -110,6 +109,14 @@ public class ObjectTracker : MonoBehaviour
     
     private void OnDrawGizmos()
     {
+        while (_gizmoList.Count > 100)
+        {
+            _gizmoList.RemoveAt(0);
+        }
+        
+        if (!GameManager.Instance.Messpunkte)
+            return;
+        
         int count = _gizmoList.Count - 1;
         for (int i = count; i >= 0 ; i--)
         {
@@ -118,11 +125,6 @@ public class ObjectTracker : MonoBehaviour
             {
                 GizmosUtils.DrawText(GUI.skin, "O", new Vector3(point.X, 0, point.Z), color: color, fontSize: 10);
             }
-        }
-
-        if (_gizmoList.Count > 100)
-        {
-            _gizmoList.RemoveAt(0);
         }
     }
 }

@@ -26,6 +26,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float OmegaSquared = 10;
     [SerializeField] private float Rx = 10;
     [SerializeField] private float Ry = 10;
+
+    [Header("Gizmos")] [SerializeField] public bool Messpunkte = true;
     
     public int FrameNumber { get; private set; }
 
