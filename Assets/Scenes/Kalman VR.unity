@@ -287,11 +287,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   EnableYOLO: 1
   EnableMeasureSimulation: 0
-  DurationSeconds: 60
+  DurationSeconds: 20
   OmegaSquared: 30
   Rx: 30
   Ry: 30
-  Messpunkte: 1
+  Messpunkte: 0
   SimulatedObjects: []
 --- !u!4 &338167175
 Transform:
@@ -820,7 +820,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AspectMode: 0
-  m_AspectRatio: 1.0485362
+  m_AspectRatio: 0.9978022
 --- !u!114 &1082046619
 MonoBehaviour:
   m_ObjectHideFlags: 0

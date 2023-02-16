@@ -144,6 +144,11 @@ public class GameManager : MonoBehaviour
     {
         return OmegaSquared;
     }
+
+    public void ResetFrameNumber()
+    {
+        FrameNumber = 0;
+    }
 }
 
 public class KalmanState

@@ -29,7 +29,7 @@ public class ObjectTracker : MonoBehaviour
         
         foreach (Detection detection in detections)
         {
-            if (detection.classIndex is not (14 or 8)) // Filter for detected objects by Label
+            if (detection.classIndex is not (14 or 8 or 6)) // Filter for detected objects by Label
                 return;
             
             _cameraToWorld.ProcessDetection(detection, MaxRayDistance, StereoImage, out Point p); // Raycast from Camera to Floor
@@ -107,7 +107,8 @@ public class ObjectTracker : MonoBehaviour
             
             for (int p = 0; p < points.Count; p++)
             {
-                distanceMultiArray[k][p] = Vector2.Distance(KalmanManager.Instance.KalmanFilters[k].GetVector2Position(), points[p].Position);
+                float distance = Vector2.Distance(KalmanManager.Instance.KalmanFilters[k].GetVector2Position(), points[p].Position);
+                distanceMultiArray[k][p] = distance < 5 ? distance : float.PositiveInfinity;
             }
         }
 

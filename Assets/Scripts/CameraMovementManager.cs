@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -8,10 +9,13 @@ public class CameraMovementManager : MonoBehaviour
     [SerializeField] private Camera _camera;
     [SerializeField] private bool RecordPositions = false;
     [SerializeField] private bool PlayRecordedPositions = false;
+    [SerializeField] private int TimeScale = 1;
     private TextWriter _textWriter;
     private Transform _cameraTransform;
     [SerializeField] private TextAsset RecordedPositionsFile ;
     private string[] _recordedPositionsFileRows;
+    
+    private readonly List<Vector3> CameraPositions = new ();
 
     private void Awake()
     {
@@ -42,9 +46,12 @@ public class CameraMovementManager : MonoBehaviour
     private void MoveToRecordedOrientation()
     {
         int timeDisplacement = 3;
-        int frameNumber = GameManager.Instance.FrameNumber - timeDisplacement;
+        int frameNumber = (GameManager.Instance.FrameNumber - timeDisplacement) / TimeScale;
         if (frameNumber >= _recordedPositionsFileRows.Length - 1 - timeDisplacement)
+        {
+            GameManager.Instance.ResetFrameNumber();
             return;
+        }
         if (frameNumber < 0)
             return;
         string[] lineData = _recordedPositionsFileRows[frameNumber].Trim().Trim('(', ')').Split(";"[0]);
@@ -52,5 +59,16 @@ public class CameraMovementManager : MonoBehaviour
         Quaternion recordedRotation = new(float.Parse(lineData[4]), float.Parse(lineData[5]), float.Parse(lineData[6]), float.Parse(lineData[3]));
         _cameraTransform.rotation = recordedRotation;
         _cameraTransform.position = recordedPosition;
+        
+        CameraPositions.Add(recordedPosition);
+    }     
+    
+    private void OnDrawGizmos()
+    {
+        for (int i = 0; i < CameraPositions.Count - 1; i++)
+        {
+            Gizmos.color = Color.black;
+            Gizmos.DrawLine(CameraPositions[i], CameraPositions[i+1]);
+        }
     }
 }
