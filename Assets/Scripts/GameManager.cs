@@ -63,7 +63,6 @@ public class GameManager : MonoBehaviour
             _kalmanStates.Add(kalmanState);
 
         FrameNumber++;
-        //Time.timeScale += 0.001f;
     }
     
     private void OnDestroy()

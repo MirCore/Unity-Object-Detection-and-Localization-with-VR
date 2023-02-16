@@ -228,10 +228,10 @@ GameObject:
   - component: {fileID: 338167175}
   - component: {fileID: 338167174}
   - component: {fileID: 338167176}
-  - component: {fileID: 338167178}
   - component: {fileID: 338167180}
   - component: {fileID: 338167186}
   - component: {fileID: 338167185}
+  - component: {fileID: 338167187}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -253,11 +253,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   EnableYOLO: 1
   EnableMeasureSimulation: 0
-  DurationSeconds: 30
+  DurationSeconds: 52
   OmegaSquared: 30
-  Rx: 2
+  Rx: 30
   Ry: 30
-  Messpunkte: 1
+  Messpunkte: 0
   SimulatedObjects: []
 --- !u!4 &338167175
 Transform:
@@ -272,7 +272,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &338167176
 MonoBehaviour:
@@ -289,25 +289,6 @@ MonoBehaviour:
   KalmanFilters: []
   _kalmanFilterPrefab: {fileID: 7831495390002388126, guid: f89c008efa086754693c1b72ec53b822, type: 3}
   text: {fileID: 0}
---- !u!114 &338167178
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 338167173}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a25c39fd1012cf4cbdd2e9b76f19c76, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SimulationObject: {fileID: 0}
-  NumberOfSimulationSpawnsOnStartup: 0
-  Noise: 0.2
-  MeasureDelta: 0.016666668
-  MeasurePosition: 1
-  SendMeasuredPositions: 1
-  SpawnSimulationButton: 0
 --- !u!114 &338167180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -320,6 +301,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3f1075e48140404c848079b74a71571, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  StereoImage: 1
 --- !u!114 &338167185
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -335,13 +317,13 @@ MonoBehaviour:
   _sourceType: 1
   _texture: {fileID: 2800000, guid: 396badab29eeb426e80c616058416f49, type: 3}
   _textureUrl: 
-  _video: {fileID: 32900000, guid: 8dee05dfd4f387c4c9eb1361a24238f7, type: 3}
+  _video: {fileID: 32900000, guid: 6c77be8e4d9269c42b6f9da5be9a3236, type: 3}
   _videoUrl: 
-  _webcamName: Logi Webcam C920e
+  _webcamName: Logitech StreamCam
   _webcamResolution: {x: 1920, y: 1080}
   _webcamFrameRate: 30
   _outputTexture: {fileID: 0}
-  _outputResolution: {x: 1920, y: 1080}
+  _outputResolution: {x: 1920, y: 960}
   _shader: {fileID: 4800000, guid: 3f7d8db4748f54c638a46cec0b0e61f8, type: 3}
 --- !u!114 &338167186
 MonoBehaviour:
@@ -356,12 +338,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _source: {fileID: 338167185}
-  _threshold: 0.8
+  _threshold: 0.95
   _resources: {fileID: 11400000, guid: 4bdfe4ce1192248c69b07ffd4bb583c2, type: 2}
   _preview: {fileID: 1082046619}
   _markerPrefab: {fileID: 4536004240564693993, guid: 60564bd5cdc8546268601d4f7d6ed7cc, type: 3}
   Locator: {fileID: 0}
   Tracker: {fileID: 338167180}
+--- !u!114 &338167187
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 338167173}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43e463eae5fde78498a9a86a4f78e6b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _camera: {fileID: 1314325693}
+  RecordPositions: 0
+  PlayRecordedPositions: 1
+  RecordedPositionsFile: {fileID: 4900000, guid: f0a12becefb553b4ba373de960e48e03, type: 3}
 --- !u!1 &1082046616
 GameObject:
   m_ObjectHideFlags: 0
@@ -390,7 +388,7 @@ RectTransform:
   m_GameObject: {fileID: 1082046616}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1267730459}
@@ -414,7 +412,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AspectMode: 0
-  m_AspectRatio: 0.34668717
+  m_AspectRatio: 0.99780226
 --- !u!114 &1082046619
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -544,7 +542,7 @@ RectTransform:
   m_Children:
   - {fileID: 1082046617}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -562,7 +560,6 @@ GameObject:
   - component: {fileID: 1314325694}
   - component: {fileID: 1314325693}
   - component: {fileID: 1314325692}
-  - component: {fileID: 1314325695}
   m_Layer: 0
   m_Name: YOLO Camera
   m_TagString: MainCamera
@@ -589,12 +586,12 @@ Camera:
   serializedVersion: 2
   m_ClearFlags: 1
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
-  m_projectionMatrixMode: 2
+  m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
   m_SensorSize: {x: 21, y: 15.2}
   m_LensShift: {x: 0, y: 0}
-  m_FocalLength: 35
+  m_FocalLength: 5.378014
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -603,13 +600,13 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 24.50236
+  field of view: 109.431
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 119
+    m_Bits: 2147483647
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -634,21 +631,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 6, y: 0, z: 0}
---- !u!114 &1314325695
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1314325691}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c8e2e6ce2316eff488b407f9fa9f690d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  RotationAngle: 0.02
 --- !u!1 &1816898828
 GameObject:
   m_ObjectHideFlags: 0
@@ -747,6 +731,90 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1834855929
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1834855932}
+  - component: {fileID: 1834855931}
+  - component: {fileID: 1834855930}
+  m_Layer: 0
+  m_Name: YOLO Camera (1)
+  m_TagString: MainCamera
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!81 &1834855930
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1834855929}
+  m_Enabled: 1
+--- !u!20 &1834855931
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1834855929}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 1
+  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_projectionMatrixMode: 2
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
+  m_SensorSize: {x: 21, y: 15.2}
+  m_LensShift: {x: 0, y: 0}
+  m_FocalLength: 35
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.3
+  far clip plane: 1000
+  field of view: 24.50236
+  orthographic: 0
+  orthographic size: 5
+  m_Depth: -1
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 119
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
+  m_TargetEye: 3
+  m_HDR: 1
+  m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
+--- !u!4 &1834855932
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1834855929}
+  m_LocalRotation: {x: 0.052335896, y: 0, z: 0, w: 0.9986295}
+  m_LocalPosition: {x: 0, y: 2.5, z: -16}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 6, y: 0, z: 0}
 --- !u!1 &2086387899
 GameObject:
   m_ObjectHideFlags: 0
@@ -813,5 +881,5 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

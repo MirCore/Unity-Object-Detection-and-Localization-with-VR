@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -6,7 +7,7 @@ using YoloV4Tiny;
 public class ObjectTracker : MonoBehaviour
 {
     [Header("Object-detection settings")]
-    private bool StereoImage = false;
+    [SerializeField] private bool StereoImage = false;
     
     [Header("Raycast setting")]
     private int MaxRayDistance = 30;
@@ -14,15 +15,21 @@ public class ObjectTracker : MonoBehaviour
     private CameraToWorld _cameraToWorld;
     
     private List<List<Point>> _gizmoList = new ();
+    private Camera Camera1;
+
+    private void Start()
+    {
+        Camera1 = Camera.main;
+    }
 
     public void SetNewDetectionData(IEnumerable<Detection> detections)
     {
         List<Point> points = new();
-        _cameraToWorld ??= new CameraToWorld(Camera.main);
+        _cameraToWorld ??= new CameraToWorld(Camera1);
         
         foreach (Detection detection in detections)
         {
-            if (detection.classIndex != 14) // Filter for detected objects by Label
+            if (detection.classIndex is not (14 or 8)) // Filter for detected objects by Label
                 return;
             
             _cameraToWorld.ProcessDetection(detection, MaxRayDistance, StereoImage, out Point p); // Raycast from Camera to Floor
@@ -114,6 +121,8 @@ public class ObjectTracker : MonoBehaviour
             _gizmoList.RemoveAt(0);
         }
         
+        if (!GameManager.Instance)
+            return;
         if (!GameManager.Instance.Messpunkte)
             return;
         

@@ -22,6 +22,8 @@ public class Visualizer : MonoBehaviour
 
     protected ObjectDetector _detector;
     protected Marker[] _markers = new Marker[50];
+    private bool IsLocatorNotNull;
+    private bool IsTrackerNotNull;
 
     #endregion
     
@@ -29,6 +31,8 @@ public class Visualizer : MonoBehaviour
 
     void Start()
     {
+        IsTrackerNotNull = Tracker != null;
+        IsLocatorNotNull = Locator != null;
         _detector = new ObjectDetector(_resources);
         for (var i = 0; i < _markers.Length; i++)
             _markers[i] = Instantiate(_markerPrefab, _preview.transform);
@@ -53,8 +57,10 @@ public class Visualizer : MonoBehaviour
             _markers[i++].SetAttributes(d);
         }
 
-        //Locator.SetNewDetectionData(_detector.Detections);
-        Tracker.SetNewDetectionData(_detector.Detections);
+        if (IsLocatorNotNull)
+            Locator.SetNewDetectionData(_detector.Detections);
+        if (IsTrackerNotNull)
+            Tracker.SetNewDetectionData(_detector.Detections);
         
 
         for (; i < _markers.Length; i++) _markers[i].Hide();
