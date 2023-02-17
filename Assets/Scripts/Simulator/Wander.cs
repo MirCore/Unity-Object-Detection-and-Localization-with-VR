@@ -30,8 +30,11 @@ namespace Simulator
 			controller = GetComponent<CharacterController>();
 
 			// Set random initial rotation
-			heading = Random.Range(0, 360);
-			transform.eulerAngles = new Vector3(0, heading, 0);
+			if (Seed != 0)
+			{
+				heading = Random.Range(0, 360);
+				transform.eulerAngles = new Vector3(0, heading, 0);
+			}
 
 			StartCoroutine(NewHeading());
 		}

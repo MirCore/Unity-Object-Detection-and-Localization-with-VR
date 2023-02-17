@@ -84,17 +84,19 @@ public class KalmanManager : MonoBehaviour
             // Find pair of KalmanFilter and Point with smallest distance
             HelperFunctions.FindMinIndexOfMulti(distanceArray, out int kalman, out int simulatedObject);
 
+            if (float.IsPositiveInfinity(distanceArray[kalman][simulatedObject]) || float.IsNaN(distanceArray[kalman][simulatedObject]))
+                continue;
             kalmanSimulationPairs.Add(new Tuple<KalmanFilter, SimulationController>(KalmanFilters[kalman], GameManager.Instance.SimulatedObjects[simulatedObject]));
-        
+
             // Set the distance of the used KalmanFilter and Point to Infinity in the distanceArray
             for (int k = 0; k < KalmanFilters.Count; k++)
             {
                 for (int s = 0; s < GameManager.Instance.SimulatedObjects.Count; s++)
                 {
                     if (k == kalman || s == simulatedObject)
-                        distanceArray[k][s] = float.PositiveInfinity;
+                        distanceArray[k][s] = float.NaN;
                 }
-                
+
             }
         }
 
@@ -123,6 +125,10 @@ public class KalmanManager : MonoBehaviour
     {
         Instantiate(_kalmanFilterPrefab, new Vector3(), new Quaternion());
     }
+    public void InstantiateNewKalmanFilter(Vector2 position)
+    {
+        Instantiate(_kalmanFilterPrefab, new Vector3(position.x, 0, position.y), new Quaternion());
+    }
 
     public void SetNewKalmanFilter(KalmanFilter kalmanFilter)
     {
@@ -137,6 +143,12 @@ public class KalmanManager : MonoBehaviour
     public float GetNEESValue()
     {
         return NEES / NEEScount;
+    }
+
+    public string GetMSEText()
+    {
+        return ("NEES: " + (NEES / NEEScount).ToString("F4") +
+                "\n MSEKalman: " + (MSEKalman / NEEScount).ToString("F4"));
     }
 
     public KalmanState GetKalmanState()

@@ -66,9 +66,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 1
+  acceleration: 0
   directionChangeInterval: 1
   maxHeadingChange: 30
   maxDistanceFactor: 10
+  Seed: 0
 --- !u!114 &6783116798449768294
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -81,7 +83,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3084e88c2922764c84946e355419578, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  velocityGameObject: {fileID: 0}
+  RecordPositions: 0
+  RecordedPositionsFile: {fileID: 0}
 --- !u!1001 &4417964409326529559
 PrefabInstance:
   m_ObjectHideFlags: 0

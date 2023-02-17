@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using UnityEngine.Serialization;
@@ -18,6 +19,7 @@ namespace Simulator
         
         [SerializeField] private TextAsset RecordedPositionsFile ;
         private string[] _recordedPositionsFileRows;
+        private readonly List<Vector3> Positions = new ();
         
         private void Awake()
         {
@@ -48,6 +50,8 @@ namespace Simulator
             
             if (_recordedPositionsFileRows != null && !RecordPositions)
                 MoveToRecordedLocation();
+
+            Positions.Add(transform.position);
         } 
         
         private void OnDestroy()
@@ -73,6 +77,15 @@ namespace Simulator
         private void LookAt(Vector3 position)
         {
             transform.LookAt(position);
+        }
+        
+        private void OnDrawGizmos()
+        {
+            for (int i = 0; i < Positions.Count - 1; i++)
+            {
+                Gizmos.color = Color.black;
+                Gizmos.DrawLine(Positions[i], Positions[i+1]);
+            }
         }
     }
 }

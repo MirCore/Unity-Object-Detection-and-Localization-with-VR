@@ -30,7 +30,7 @@ public class ObjectTracker : MonoBehaviour
         foreach (Detection detection in detections)
         {
             if (detection.classIndex is not (14 or 8 or 6)) // Filter for detected objects by Label
-                return;
+                continue;
             
             _cameraToWorld.ProcessDetection(detection, MaxRayDistance, StereoImage, out Point p); // Raycast from Camera to Floor
 
@@ -61,7 +61,10 @@ public class ObjectTracker : MonoBehaviour
         if (points.Count == 0)
             return;
         if (KalmanManager.Instance.KalmanFilters.Count == 0)
-            KalmanManager.Instance.InstantiateNewKalmanFilter();
+        {
+            KalmanManager.Instance.InstantiateNewKalmanFilter(points[0].Position);
+            KalmanManager.Instance.KalmanFilters.FirstOrDefault()?.SetNewMeasurement(points[0].Position);
+        }
 
 
         float[][] distanceArray = CreateDistanceArray(points);
@@ -73,7 +76,7 @@ public class ObjectTracker : MonoBehaviour
             HelperFunctions.FindMinIndexOfMulti(distanceArray, out int kalman, out int point);
 
             // Send Point to KalmanFilter or Instantiate a new KalmanFilter if the distance is higher than the threshold
-            if (float.IsPositiveInfinity(distanceArray[kalman][point]))
+            if (float.IsPositiveInfinity(distanceArray[kalman][point]) || float.IsNaN(distanceArray[kalman][point]))
             {
                 KalmanManager.Instance.InstantiateNewKalmanFilter();
                 KalmanManager.Instance.KalmanFilters.LastOrDefault()?.SetNewMeasurement(points[point].Position);
@@ -88,7 +91,7 @@ public class ObjectTracker : MonoBehaviour
                     for (int p = 0; p < points.Count; p++)
                     {
                         if (k == kalman || p == point)
-                            distanceArray[k][p] = float.PositiveInfinity;
+                            distanceArray[k][p] = float.NaN;
                     }
                 }
             
@@ -108,7 +111,7 @@ public class ObjectTracker : MonoBehaviour
             for (int p = 0; p < points.Count; p++)
             {
                 float distance = Vector2.Distance(KalmanManager.Instance.KalmanFilters[k].GetVector2Position(), points[p].Position);
-                distanceMultiArray[k][p] = distance < 5 ? distance : float.PositiveInfinity;
+                distanceMultiArray[k][p] = distance < GameManager.Instance.MaxKalmanMeasurementDistance ? distance : float.PositiveInfinity;
             }
         }
 
@@ -117,7 +120,7 @@ public class ObjectTracker : MonoBehaviour
     
     private void OnDrawGizmos()
     {
-        while (_gizmoList.Count > 100)
+        while (_gizmoList.Count > 1000)
         {
             _gizmoList.RemoveAt(0);
         }
@@ -133,7 +136,7 @@ public class ObjectTracker : MonoBehaviour
             Color color = Color.HSVToRGB(0, 1f / count * i, 1);
             foreach (Point point in _gizmoList[i])
             {
-                GizmosUtils.DrawText(GUI.skin, "O", new Vector3(point.X, 0, point.Z), color: color, fontSize: 10);
+                GizmosUtils.DrawText(GUI.skin, "+", new Vector3(point.X, 0, point.Z), color: color, fontSize: 6);
             }
         }
     }

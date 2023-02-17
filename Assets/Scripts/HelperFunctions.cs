@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-public class HelperFunctions
+public static class HelperFunctions
 {
     public static void FindMinIndexOfMulti(IReadOnlyList<float[]> arr, out int index, out int element)
     {
@@ -10,7 +10,8 @@ public class HelperFunctions
         {
             for (int e = 0; e < arr[i].Length; e++)
             {
-                if (!(arr[i][e] < arr[index][element])) continue;
+                if ( float.IsNaN(arr[i][e]) ) continue;
+                if (!(arr[i][e] < arr[index][element]) && !float.IsNaN(arr[index][element])) continue;
                 
                 index = i;
                 element = e;

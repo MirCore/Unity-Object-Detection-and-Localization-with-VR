@@ -21,6 +21,7 @@ public class GameManager : MonoBehaviour
     private List<KalmanState> _kalmanStates = new();
 
     [SerializeField] private int DurationSeconds = 10;
+    public float MaxKalmanMeasurementDistance = 5;
     
     [Header("Kalman Values")]
     [SerializeField] private float OmegaSquared = 10;
@@ -33,7 +34,8 @@ public class GameManager : MonoBehaviour
 
     [Header("")]
     public List<SimulationController> SimulatedObjects = new();
-    
+
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -70,7 +72,7 @@ public class GameManager : MonoBehaviour
         WriteFile("kalman", "NEES: " + KalmanManager.Instance.GetNEESValue() + "; o^2: " + OmegaSquared + "; R: " + Rx + " " + Ry);
         WriteFileFromList("log", _kalmanStates);
 
-        Debug.Log(KalmanManager.Instance.GetNEESValue());
+        Debug.Log(KalmanManager.Instance.GetMSEText());
     }
 
     private static void WriteFileFromList(string fileName, List<KalmanState> kalmanStates)

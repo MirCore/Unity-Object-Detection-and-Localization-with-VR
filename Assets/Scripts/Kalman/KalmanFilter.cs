@@ -10,17 +10,17 @@ namespace Kalman
     [ExecuteInEditMode]
     public class KalmanFilter : MonoBehaviour
     {
-        public Matrix<double> F;
-        public Matrix<double> FT;
-        public Matrix<double> H;
-        public Matrix<double> HT;
-        public Matrix<double> Gd;
-        public Matrix<double> I;
-        public Matrix<double> R;
-        public Matrix<double> GdQGdT;
-        public Matrix<double> Q;
-        public Matrix<double> P { get; set; }
-        public Vector<double> x { get; set; }
+        protected Matrix<double> F;
+        protected Matrix<double> FT;
+        protected Matrix<double> H;
+        protected Matrix<double> HT;
+        protected Matrix<double> Gd;
+        protected Matrix<double> I;
+        protected Matrix<double> R;
+        protected Matrix<double> GdQGdT;
+        private Matrix<double> Q;
+        public Matrix<double> P { get; protected set; }
+        public Vector<double> x { get; protected set; }
 
         public float Ts;
 
@@ -30,14 +30,14 @@ namespace Kalman
         [SerializeField] private bool SelfDestruct = true;       
         [SerializeField] private int SelfDestructDistance = 500;
     
-        private List<Vector3> KalmanPositions = new ();
+        private readonly List<Vector3> KalmanPositions = new ();
 
         private Vector2 PositionMeanWithoutKalman;
-        private List<Vector2> LastMeasurementPositions = new ();
+        private readonly List<Vector2> LastMeasurementPositions = new ();
 
 
         private Vector2? _measurement = null;
-        private Color _color;
+        [SerializeField] private Color _color;
 
         private void Awake()
         {
@@ -87,7 +87,8 @@ namespace Kalman
             P = DenseMatrix.OfDiagonalArray(new double[] { 100, 100, 10, 10 });
 
             // Initial
-            x = DenseVector.OfArray(new double[] { 0, 0, 0, 0 });
+            Vector3 position = transform.position;
+            x = DenseVector.OfArray(new double[] { position.x, position.z, 0, 0 });
         }
 
         private void Start()
@@ -95,14 +96,6 @@ namespace Kalman
             KalmanPosition = gameObject;
             _color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
             Hologram.material.color =  _color;
-        }
-
-        private void OnValidate()
-        {
-            if (GdQGdT != null)
-            {
-                GdQGdT = Gd * Q * Gd.Transpose();
-            }
         }
 
         private void FixedUpdate()
@@ -198,8 +191,7 @@ namespace Kalman
 
         public Vector2 GetVector2Position()
         {
-            Vector3 position = transform.position;
-            return new Vector2(position.x, position.z);
+            return new Vector2((float)x[0], (float)x[1]);
         }
 
         public Vector2 GetVector2Velocity()
