@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 using YoloV4Tiny;
 
@@ -61,12 +62,8 @@ public class ObjectTracker : MonoBehaviour
         if (points.Count == 0)
             return;
         if (KalmanManager.Instance.KalmanFilters.Count == 0)
-        {
-            KalmanManager.Instance.InstantiateNewKalmanFilter(points[0].Position);
-            KalmanManager.Instance.KalmanFilters.FirstOrDefault()?.SetNewMeasurement(points[0].Position);
-        }
-
-
+            InstantiateKalman(points[0].Position);
+        
         float[][] distanceArray = CreateDistanceArray(points);
 
         int kalmanFilterCount = KalmanManager.Instance.KalmanFilters.Count;
@@ -78,14 +75,13 @@ public class ObjectTracker : MonoBehaviour
             // Send Point to KalmanFilter or Instantiate a new KalmanFilter if the distance is higher than the threshold
             if (float.IsPositiveInfinity(distanceArray[kalman][point]) || float.IsNaN(distanceArray[kalman][point]))
             {
-                KalmanManager.Instance.InstantiateNewKalmanFilter();
-                KalmanManager.Instance.KalmanFilters.LastOrDefault()?.SetNewMeasurement(points[point].Position);
+                InstantiateKalman(points[point].Position);
             }
             else
             {
                 KalmanManager.Instance.KalmanFilters[kalman].SetNewMeasurement(points[point].Position);
             
-                // Set the distance of the used KalmanFilter and Point to Infinity in the distanceArray
+                // Set the distance of the used KalmanFilter and Point to NaN in the distanceArray
                 for (int k = 0; k < kalmanFilterCount; k++)
                 {
                     for (int p = 0; p < points.Count; p++)
@@ -97,6 +93,12 @@ public class ObjectTracker : MonoBehaviour
             
             }
         }
+    }
+
+    private static void InstantiateKalman(Vector2 position)
+    {
+        KalmanManager.Instance.InstantiateNewKalmanFilter(position);
+        KalmanManager.Instance.KalmanFilters.LastOrDefault()?.SetNewMeasurement(position);
     }
 
 
@@ -111,7 +113,9 @@ public class ObjectTracker : MonoBehaviour
             for (int p = 0; p < points.Count; p++)
             {
                 float distance = Vector2.Distance(KalmanManager.Instance.KalmanFilters[k].GetVector2Position(), points[p].Position);
-                distanceMultiArray[k][p] = distance < GameManager.Instance.MaxKalmanMeasurementDistance ? distance : float.PositiveInfinity;
+                //distanceMultiArray[k][p] = distance < GameManager.Instance.MaxKalmanMeasurementDistance ? distance : float.PositiveInfinity;
+                float maxOfP = KalmanManager.Instance.KalmanFilters[k].GetP().magnitude;
+                distanceMultiArray[k][p] = distance < maxOfP ? distance : float.PositiveInfinity;
             }
         }
 

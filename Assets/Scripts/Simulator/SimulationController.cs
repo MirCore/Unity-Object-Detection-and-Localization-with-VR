@@ -81,11 +81,7 @@ namespace Simulator
         
         private void OnDrawGizmos()
         {
-            for (int i = 0; i < Positions.Count - 1; i++)
-            {
-                Gizmos.color = Color.black;
-                Gizmos.DrawLine(Positions[i], Positions[i+1]);
-            }
+            GizmosUtils.DrawLine(Positions, Color.black);
         }
     }
 }

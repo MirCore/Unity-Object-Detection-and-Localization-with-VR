@@ -17,7 +17,6 @@ public class KalmanManager : MonoBehaviour
     [SerializeField] private TMP_Text text;
 
     private float NEES;
-    private float MSEKalman;
     private float MSE;
     private int NEEScount;
     private KalmanState _kalmanState;
@@ -51,12 +50,10 @@ public class KalmanManager : MonoBehaviour
 
             Matrix<double> normalizedEstimatedErrorSquared = x.Transpose() * kalman.P.Inverse() * x;
             NEES += (float) normalizedEstimatedErrorSquared[0, 0];
-            MSE += (simulatedObject.PositionVector2 - kalman.GetPositionMeanWithoutKalman()).sqrMagnitude;
-            MSEKalman += (simulatedObject.PositionVector2 - kalman.GetVector2Position()).sqrMagnitude;
+            MSE += (simulatedObject.PositionVector2 - kalman.GetVector2Position()).sqrMagnitude;
             NEEScount++;
             text.SetText("NEES: " + (NEES / NEEScount).ToString("F4") +
-                         "\n MSE: " + (MSE / NEEScount).ToString("F4") +
-                         "\n MSEKalman: " + (MSEKalman / NEEScount).ToString("F4"));
+                         "\n MSE: " + (MSE / NEEScount).ToString("F4"));
 
             _kalmanState = new KalmanState
             {
@@ -119,12 +116,7 @@ public class KalmanManager : MonoBehaviour
 
         return distanceMultiArray;
     }
-
-
-    public void InstantiateNewKalmanFilter()
-    {
-        Instantiate(_kalmanFilterPrefab, new Vector3(), new Quaternion());
-    }
+    
     public void InstantiateNewKalmanFilter(Vector2 position)
     {
         Instantiate(_kalmanFilterPrefab, new Vector3(position.x, 0, position.y), new Quaternion());
@@ -148,7 +140,7 @@ public class KalmanManager : MonoBehaviour
     public string GetMSEText()
     {
         return ("NEES: " + (NEES / NEEScount).ToString("F4") +
-                "\n MSEKalman: " + (MSEKalman / NEEScount).ToString("F4"));
+                "\n MSEKalman: " + (MSE / NEEScount).ToString("F4"));
     }
 
     public KalmanState GetKalmanState()

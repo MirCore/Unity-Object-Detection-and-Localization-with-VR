@@ -65,10 +65,6 @@ public class CameraMovementManager : MonoBehaviour
     
     private void OnDrawGizmos()
     {
-        for (int i = 0; i < CameraPositions.Count - 1; i++)
-        {
-            Gizmos.color = Color.black;
-            Gizmos.DrawLine(CameraPositions[i], CameraPositions[i+1]);
-        }
+        GizmosUtils.DrawLine(CameraPositions, Color.black);
     }
 }

@@ -253,7 +253,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   EnableYOLO: 1
   EnableMeasureSimulation: 0
-  DurationSeconds: 102
+  DurationSeconds: 50
+  MaxKalmanMeasurementDistance: 5
   OmegaSquared: 30
   Rx: 30
   Ry: 30
@@ -317,7 +318,7 @@ MonoBehaviour:
   _sourceType: 1
   _texture: {fileID: 2800000, guid: 396badab29eeb426e80c616058416f49, type: 3}
   _textureUrl: 
-  _video: {fileID: 32900000, guid: d1bd778f2661eec419b5ab8e3055b35a, type: 3}
+  _video: {fileID: 32900000, guid: 2a7bce13607c59b4886a83fd00ec851d, type: 3}
   _videoUrl: 
   _webcamName: Logitech StreamCam
   _webcamResolution: {x: 1920, y: 1080}
@@ -338,7 +339,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _source: {fileID: 338167185}
-  _threshold: 0.9
+  _threshold: 0.95
   _resources: {fileID: 11400000, guid: 4bdfe4ce1192248c69b07ffd4bb583c2, type: 2}
   _preview: {fileID: 1082046619}
   _markerPrefab: {fileID: 4536004240564693993, guid: 60564bd5cdc8546268601d4f7d6ed7cc, type: 3}
@@ -510,7 +511,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AspectMode: 0
-  m_AspectRatio: 1
+  m_AspectRatio: 1.7762377
 --- !u!114 &1082046619
 MonoBehaviour:
   m_ObjectHideFlags: 0

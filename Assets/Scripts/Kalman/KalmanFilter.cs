@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using UnityEngine;
@@ -7,7 +6,6 @@ using Random = UnityEngine.Random;
 
 namespace Kalman
 {
-    [ExecuteInEditMode]
     public class KalmanFilter : MonoBehaviour
     {
         protected Matrix<double> F;
@@ -24,20 +22,17 @@ namespace Kalman
 
         public float Ts;
 
-        private GameObject KalmanPosition;
+        private Transform _kalmanPosition;
         public Renderer Hologram;
 
         [SerializeField] private bool SelfDestruct = true;       
         [SerializeField] private int SelfDestructDistance = 500;
     
-        private readonly List<Vector3> KalmanPositions = new ();
-
-        private Vector2 PositionMeanWithoutKalman;
-        private readonly List<Vector2> LastMeasurementPositions = new ();
+        private readonly List<Vector3> _kalmanPositions = new ();
 
 
         private Vector2? _measurement = null;
-        [SerializeField] private Color _color;
+        [SerializeField] private Color Color;
 
         private void Awake()
         {
@@ -93,9 +88,9 @@ namespace Kalman
 
         private void Start()
         {
-            KalmanPosition = gameObject;
-            _color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
-            Hologram.material.color =  _color;
+            _kalmanPosition = transform;
+            Color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
+            Hologram.material.color =  Color;
         }
 
         private void FixedUpdate()
@@ -105,38 +100,29 @@ namespace Kalman
             // Update
             if (_measurement != null)
             {
-                LastMeasurementPositions.Add((Vector2) _measurement);
-                CalculateMeanPositionWithoutKalman();
                 UpdatePrediction((Vector2) _measurement);
                 _measurement = null;
             }
         
             UpdateKalmanGameObject();
 
-            if (!SelfDestruct) return;
-            if (P[0,0] > SelfDestructDistance)
-            {
-                KalmanManager.Instance.RemoveKalmanFilter(this);
-                Destroy(gameObject);
-            }
+            if (SelfDestruct && P[0, 0] > SelfDestructDistance)
+                SelfDestroy();
         }
 
-        private void CalculateMeanPositionWithoutKalman()
+        private void SelfDestroy()
         {
-            PositionMeanWithoutKalman = new Vector2( LastMeasurementPositions.Average(pos=>pos.x),LastMeasurementPositions.Average(pos=>pos.y));
-            while (LastMeasurementPositions.Count > 4)
-            {
-                LastMeasurementPositions.RemoveAt(0);
-            }
+            KalmanManager.Instance.RemoveKalmanFilter(this);
+            Destroy(gameObject);
         }
 
         private void UpdateKalmanGameObject()
         {
             Vector3 newPosition = GetVector3Position();
-            KalmanPosition.transform.position = newPosition;
-            KalmanPosition.transform.localScale = new Vector3((float)P[0, 0], 0.1f, (float)P[1, 1]);
+            _kalmanPosition.position = newPosition;
+            _kalmanPosition.localScale = new Vector3((float)P[0, 0], 0.1f, (float)P[1, 1]);
             Debug.DrawLine(newPosition, newPosition + GetVector3Velocity(), Color.red);
-            KalmanPositions.Add(newPosition);
+            _kalmanPositions.Add(newPosition);
         }
 
         private void Predict()
@@ -167,11 +153,7 @@ namespace Kalman
     
         private void OnDrawGizmos()
         {
-            for (int i = 0; i < KalmanPositions.Count - 1; i++)
-            {
-                Gizmos.color = _color;
-                Gizmos.DrawLine(KalmanPositions[i], KalmanPositions[i+1]);
-            }
+            GizmosUtils.DrawLine(_kalmanPositions, Color);
         
             if (x == null)
                 return;
@@ -209,11 +191,6 @@ namespace Kalman
             if (_measurement != null)
                 return (Vector2)_measurement;
             return Vector2.zero;
-        }
-
-        public Vector2 GetPositionMeanWithoutKalman()
-        {
-            return PositionMeanWithoutKalman;
         }
     }
 }
