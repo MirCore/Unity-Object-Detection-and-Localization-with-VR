@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Kalman;
 using Simulator;
 using UnityEditor;
 using UnityEngine;
@@ -18,7 +19,7 @@ public class GameManager : MonoBehaviour
     private Visualizer _visualizer;
     private DetectionSimulator _detectionSimulator;
 
-    private List<KalmanState> _kalmanStates = new();
+    private readonly List<KalmanState> _kalmanStates = new();
 
     [SerializeField] private int DurationSeconds = 10;
     public float MaxKalmanMeasurementDistance = 5;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Kalman;
 using Unity.XR.CoreUtils;
 using UnityEngine;
 using YoloV4Tiny;
@@ -82,18 +83,11 @@ public class ObjectTracker : MonoBehaviour
                 KalmanManager.Instance.KalmanFilters[kalman].SetNewMeasurement(points[point].Position);
             
                 // Set the distance of the used KalmanFilter and Point to NaN in the distanceArray
-                for (int k = 0; k < kalmanFilterCount; k++)
-                {
-                    for (int p = 0; p < points.Count; p++)
-                    {
-                        if (k == kalman || p == point)
-                            distanceArray[k][p] = float.NaN;
-                    }
-                }
-            
+                HelperFunctions.RemoveUsedPairsInDistanceArray(points.Count, kalmanFilterCount, distanceArray, point, kalman);
             }
         }
     }
+
 
     private static void InstantiateKalman(Vector2 position)
     {
