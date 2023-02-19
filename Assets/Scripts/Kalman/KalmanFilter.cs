@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -30,22 +31,27 @@ namespace Kalman
     
         private readonly List<Vector3> _kalmanPositions = new ();
 
+        private float NIS;
+        private int NISCount;
 
         private Vector2? _measurement = null;
         [SerializeField] private Color Color;
 
+        //private int measurementCount;
+        //private int UpdateCount;
+
         private void Awake()
         {
-            PopulateMatrices(GameManager.Instance.GetOmegaSquared());
+            PopulateMatrices(GameManager.Instance.GetSigmaSquared());
 
             KalmanManager.Instance.SetNewKalmanFilter(this);
         }
 
-        private void PopulateMatrices(double omegaSquared)
+        private void PopulateMatrices(double sigmaSquared)
         {
             Ts = Time.fixedDeltaTime;
 
-            // State-Transition:
+            // State-Transition Model
             F = DenseMatrix.OfArray(new double[,]
             {
                 { 1, 0, Ts, 0 },
@@ -56,7 +62,7 @@ namespace Kalman
 
             FT = F.Transpose();
 
-            // 
+            // Observation Model
             H = DenseMatrix.OfArray(new double[,]
             {
                 { 1, 0, 0, 0 },
@@ -65,6 +71,7 @@ namespace Kalman
 
             HT = H.Transpose();
 
+            // System Noise Gain
             Gd = DenseMatrix.OfArray(new double[,]
             {
                 { Ts * Ts / 2, 0 },
@@ -73,15 +80,14 @@ namespace Kalman
                 { 0, Ts }
             });
 
-            GdQGdT = Gd * omegaSquared * Gd.Transpose();
+            GdQGdT = Gd * sigmaSquared * Gd.Transpose();
 
             I = DenseMatrix.CreateIdentity(4);
 
             R = DenseMatrix.OfDiagonalArray(new double[] { GameManager.Instance.GetRx(), GameManager.Instance.GetRy() });
 
-            P = DenseMatrix.OfDiagonalArray(new double[] { 100, 100, 10, 10 });
-
             // Initial
+            P = DenseMatrix.OfDiagonalArray(new double[] { 100, 100, 10, 10 });
             Vector3 position = transform.position;
             x = DenseVector.OfArray(new double[] { position.x, position.z, 0, 0 });
         }
@@ -102,8 +108,11 @@ namespace Kalman
             {
                 UpdatePrediction((Vector2) _measurement);
                 _measurement = null;
+                //UpdateCount++;
             }
         
+            //print("Measurement: " + measurementCount + " Update: " + UpdateCount);
+            
             UpdateKalmanGameObject();
 
             if (SelfDestruct && P[0, 0] > SelfDestructDistance)
@@ -133,7 +142,9 @@ namespace Kalman
 
         private void UpdatePrediction(Vector2 measurement)
         {
-            DenseVector z = DenseVector.OfArray(new double[] {measurement.x, measurement.y}); 
+            DenseVector z = DenseVector.OfArray(new double[] {measurement.x, measurement.y});
+
+            
             Vector<double> y = z - H * x;
             Matrix<double> PHT = P * HT;
             Matrix<double> S = H * PHT + R;
@@ -144,11 +155,17 @@ namespace Kalman
             // P = (I - KH) * P * (I-KH).T + KRK.T
             Matrix<double> I_KH = I - K * H;
             P = I_KH * P * I_KH.Transpose() + K * R * K.Transpose();
+
+            
+            Matrix<double> v = DenseMatrix.OfColumnVectors(y); // residual (for NIS)
+            NIS += (float) (v.Transpose() * S.Inverse() * v)[0,0];
+            NISCount++;
         }
     
         public void SetNewMeasurement(Vector2 measurement)
         {
             _measurement = measurement;
+            //measurementCount++;
         }
     
         private void OnDrawGizmos()
@@ -191,6 +208,11 @@ namespace Kalman
             if (_measurement != null)
                 return (Vector2)_measurement;
             return Vector2.zero;
+        }
+
+        public float GetNIS()
+        {
+            return NIS / NISCount;
         }
     }
 }

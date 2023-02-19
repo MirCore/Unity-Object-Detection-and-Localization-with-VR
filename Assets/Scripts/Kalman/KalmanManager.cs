@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using Simulator;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Kalman
 {
@@ -14,7 +16,7 @@ namespace Kalman
         public List<KalmanFilter> KalmanFilters = new();
         [SerializeField] private GameObject _kalmanFilterPrefab;
 
-        [SerializeField] private TMP_Text text;
+        [SerializeField] private TMP_Text Text;
 
         private float NEES;
         private float MSE;
@@ -41,11 +43,28 @@ namespace Kalman
         {
             List<Tuple<KalmanFilter, SimulationController>> kalmanSimulationPairs = GetKalmanSimulationPairs();
 
-            if (kalmanSimulationPairs == null)
-                return;
-
             CalculateNormalizedEstimatedErrorSquared(kalmanSimulationPairs);
             CreateKalmanState(kalmanSimulationPairs);
+
+            string text = "";
+            if (NEEScount != 0)
+                text += "NEES: " + (NEES / NEEScount).ToString("F4") +
+                        "\nMSE: " + (MSE / NEEScount).ToString("F4") + "\n";
+            text += "NIS: " + GetAverageNIS().ToString("F4");
+                
+            Text.SetText(text);
+        }
+
+        /// <summary>
+        /// Returns the mean of all NIS
+        /// </summary>
+        /// <returns></returns>
+        private float GetAverageNIS()
+        {
+            float NIS = KalmanFilters.Sum(kalmanFilter => kalmanFilter.GetNIS());
+
+            NIS /= KalmanFilters.Count;
+            return NIS;
         }
 
         /// <summary>
@@ -55,6 +74,8 @@ namespace Kalman
         /// <param name="kalmanSimulationPairs"></param>
         private void CreateKalmanState(List<Tuple<KalmanFilter, SimulationController>> kalmanSimulationPairs)
         {
+            if (kalmanSimulationPairs == null)
+                return;
             foreach ((KalmanFilter kalman, SimulationController simulatedObject) in kalmanSimulationPairs)
             {
                 _kalmanState = new KalmanState
@@ -77,6 +98,9 @@ namespace Kalman
         /// <param name="kalmanSimulationPairs"></param>
         private void CalculateNormalizedEstimatedErrorSquared(List<Tuple<KalmanFilter, SimulationController>> kalmanSimulationPairs)
         {
+            
+            if (kalmanSimulationPairs == null)
+                return;
             foreach ((KalmanFilter kalman, SimulationController simulatedObject) in kalmanSimulationPairs)
             {
                 Matrix<double> groundTruth = DenseMatrix.OfArray(new double[,] { 
@@ -91,9 +115,6 @@ namespace Kalman
                 NEES += (float) normalizedEstimatedErrorSquared[0, 0];
                 MSE += (simulatedObject.PositionVector2 - kalman.GetVector2Position()).sqrMagnitude;
                 NEEScount++;
-                
-                text.SetText("NEES: " + (NEES / NEEScount).ToString("F4") +
-                             "\n MSE: " + (MSE / NEEScount).ToString("F4"));
             }
         }
 

@@ -26,7 +26,8 @@ namespace Simulator
 
 		private void Start ()
 		{
-			Random.InitState(Seed);
+			if (Seed != -1)
+				Random.InitState(Seed);
 			controller = GetComponent<CharacterController>();
 
 			// Set random initial rotation

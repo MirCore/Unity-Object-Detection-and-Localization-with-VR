@@ -16,7 +16,7 @@ public class ObjectTracker : MonoBehaviour
     
     private CameraToWorld _cameraToWorld;
     
-    private List<List<Point>> _gizmoList = new ();
+    private readonly List<List<Point>> _gizmoList = new ();
     private Camera Camera1;
 
     private void Start()
@@ -109,7 +109,8 @@ public class ObjectTracker : MonoBehaviour
                 float distance = Vector2.Distance(KalmanManager.Instance.KalmanFilters[k].GetVector2Position(), points[p].Position);
                 //distanceMultiArray[k][p] = distance < GameManager.Instance.MaxKalmanMeasurementDistance ? distance : float.PositiveInfinity;
                 float maxOfP = KalmanManager.Instance.KalmanFilters[k].GetP().magnitude;
-                distanceMultiArray[k][p] = distance < maxOfP ? distance : float.PositiveInfinity;
+                float currentSpeed = KalmanManager.Instance.KalmanFilters[k].GetVector2Velocity().magnitude;
+                distanceMultiArray[k][p] = distance < (currentSpeed + 2 * maxOfP) ? distance : float.PositiveInfinity;
             }
         }
 
@@ -118,7 +119,7 @@ public class ObjectTracker : MonoBehaviour
     
     private void OnDrawGizmos()
     {
-        while (_gizmoList.Count > 1000)
+        while (_gizmoList.Count > 500)
         {
             _gizmoList.RemoveAt(0);
         }

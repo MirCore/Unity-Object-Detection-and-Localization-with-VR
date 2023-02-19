@@ -25,11 +25,12 @@ public class GameManager : MonoBehaviour
     public float MaxKalmanMeasurementDistance = 5;
     
     [Header("Kalman Values")]
-    [SerializeField] private float OmegaSquared = 10;
+    [SerializeField] private float SigmaSquared = 30;
     [SerializeField] private float Rx = 10;
     [SerializeField] private float Ry = 10;
 
-    [Header("Gizmos")] [SerializeField] public bool Messpunkte = true;
+    [Header("Gizmos")]
+    [SerializeField] public bool Messpunkte = true;
     
     public int FrameNumber { get; private set; }
 
@@ -70,7 +71,7 @@ public class GameManager : MonoBehaviour
     
     private void OnDestroy()
     {
-        WriteFile("kalman", "NEES: " + KalmanManager.Instance.GetNEESValue() + "; o^2: " + OmegaSquared + "; R: " + Rx + " " + Ry);
+        WriteFile("kalman", "NEES: " + KalmanManager.Instance.GetNEESValue() + "; o^2: " + SigmaSquared + "; R: " + Rx + " " + Ry);
         WriteFileFromList("log", _kalmanStates);
 
         Debug.Log(KalmanManager.Instance.GetMSEText());
@@ -143,9 +144,9 @@ public class GameManager : MonoBehaviour
         EditorApplication.isPlaying = false;
     }
 
-    public double GetOmegaSquared()
+    public double GetSigmaSquared()
     {
-        return OmegaSquared;
+        return SigmaSquared;
     }
 
     public void ResetFrameNumber()
