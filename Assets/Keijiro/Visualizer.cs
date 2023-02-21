@@ -13,7 +13,6 @@ public class Visualizer : MonoBehaviour
     [SerializeField] protected RawImage _preview = null;
     [SerializeField] protected Marker _markerPrefab = null;
     
-    [SerializeField] private ObjectLocator Locator;
     [SerializeField] protected ObjectTracker Tracker;
 
     #endregion
@@ -32,7 +31,6 @@ public class Visualizer : MonoBehaviour
     void Start()
     {
         IsTrackerNotNull = Tracker != null;
-        IsLocatorNotNull = Locator != null;
         _detector = new ObjectDetector(_resources);
         for (var i = 0; i < _markers.Length; i++)
             _markers[i] = Instantiate(_markerPrefab, _preview.transform);
@@ -57,8 +55,6 @@ public class Visualizer : MonoBehaviour
             _markers[i++].SetAttributes(d);
         }
 
-        if (IsLocatorNotNull)
-            Locator.SetNewDetectionData(_detector.Detections);
         if (IsTrackerNotNull)
             Tracker.SetNewDetectionData(_detector.Detections);
         
