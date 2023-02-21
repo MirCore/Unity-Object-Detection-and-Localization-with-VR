@@ -258,7 +258,7 @@ MonoBehaviour:
   SigmaSquared: 30
   Rx: 30
   Ry: 30
-  Messpunkte: 0
+  Messpunkte: 1
   SimulatedObjects: []
 --- !u!4 &338167175
 Transform:
@@ -318,7 +318,7 @@ MonoBehaviour:
   _sourceType: 1
   _texture: {fileID: 2800000, guid: 396badab29eeb426e80c616058416f49, type: 3}
   _textureUrl: 
-  _video: {fileID: 32900000, guid: 2a7bce13607c59b4886a83fd00ec851d, type: 3}
+  _video: {fileID: 32900000, guid: 6c77be8e4d9269c42b6f9da5be9a3236, type: 3}
   _videoUrl: 
   _webcamName: Logitech StreamCam
   _webcamResolution: {x: 1920, y: 1080}
@@ -360,6 +360,8 @@ MonoBehaviour:
   _camera: {fileID: 1314325693}
   RecordPositions: 0
   PlayRecordedPositions: 1
+  PlayRecordedRotations: 1
+  RotateAroundCenter: 0
   TimeScale: 2
   RecordedPositionsFile: {fileID: 4900000, guid: f0a12becefb553b4ba373de960e48e03, type: 3}
 --- !u!1001 &691621487
@@ -619,7 +621,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AspectMode: 0
-  m_AspectRatio: 1.7773851
+  m_AspectRatio: 1.7791518
 --- !u!114 &1082046619
 MonoBehaviour:
   m_ObjectHideFlags: 0

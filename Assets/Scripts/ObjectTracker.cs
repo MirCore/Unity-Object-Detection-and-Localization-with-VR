@@ -66,6 +66,8 @@ public class ObjectTracker : MonoBehaviour
 
     private void MeasureNoise(Vector2 point)
     {
+        if (GameManager.Instance.SimulatedObjects.Count == 0)
+            return;
         Vector2 realPosition = GameManager.Instance.SimulatedObjects.First().PositionVector2;
         Vector2 delta = new (point.x - realPosition.x, point.y - realPosition.y);
         _measurements.Add(delta);
