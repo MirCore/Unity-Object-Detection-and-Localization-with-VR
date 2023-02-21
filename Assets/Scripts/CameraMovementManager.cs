@@ -9,6 +9,8 @@ public class CameraMovementManager : MonoBehaviour
     [SerializeField] private Camera _camera;
     [SerializeField] private bool RecordPositions = false;
     [SerializeField] private bool PlayRecordedPositions = false;
+    [SerializeField] private bool PlayRecordedRotations = false;
+    [SerializeField] private bool RotateAroundCenter = false;
     [SerializeField] private int TimeScale = 1;
     private TextWriter _textWriter;
     private Transform _cameraTransform;
@@ -23,7 +25,7 @@ public class CameraMovementManager : MonoBehaviour
         if (RecordPositions)
             _textWriter = new StreamWriter("Assets/Output/camera_" + DateTime.Now.ToString("HH_mm_ss") + ".csv", false);
         
-        if (RecordedPositionsFile != null && !RecordPositions && PlayRecordedPositions)
+        if (RecordedPositionsFile != null && !RecordPositions && (PlayRecordedPositions || PlayRecordedRotations))
             _recordedPositionsFileRows =  RecordedPositionsFile.text.Split("\n"[0]);
     }
 
@@ -41,6 +43,15 @@ public class CameraMovementManager : MonoBehaviour
         
         if (_recordedPositionsFileRows != null && !RecordPositions)
             MoveToRecordedOrientation();
+
+        if (RotateAroundCenter)
+            RotateCameraAroundCenter();
+    }
+
+    private void RotateCameraAroundCenter()
+    {
+        _cameraTransform.LookAt(Vector3.zero);
+        _cameraTransform.Translate(Vector3.right * Time.fixedTime/50);
     }
 
     private void MoveToRecordedOrientation()
@@ -57,8 +68,10 @@ public class CameraMovementManager : MonoBehaviour
         string[] lineData = _recordedPositionsFileRows[frameNumber].Trim().Trim('(', ')').Split(";"[0]);
         Vector3 recordedPosition = new(float.Parse(lineData[0]), float.Parse(lineData[1]), float.Parse(lineData[2]));
         Quaternion recordedRotation = new(float.Parse(lineData[4]), float.Parse(lineData[5]), float.Parse(lineData[6]), float.Parse(lineData[3]));
-        _cameraTransform.rotation = recordedRotation;
-        _cameraTransform.position = recordedPosition;
+        if (PlayRecordedRotations)
+            _cameraTransform.rotation = recordedRotation;
+        if (PlayRecordedPositions)
+            _cameraTransform.position = recordedPosition;
         
         CameraPositions.Add(recordedPosition);
     }     

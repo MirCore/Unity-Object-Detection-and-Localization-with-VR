@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Kalman;
+using Unity.VisualScripting;
 using Unity.XR.CoreUtils;
 using UnityEngine;
 using YoloV4Tiny;
@@ -18,6 +19,8 @@ public class ObjectTracker : MonoBehaviour
     
     private readonly List<List<Point>> _gizmoList = new ();
     private Camera Camera1;
+
+    private readonly List<Vector2> _measurements = new();
 
     private void Start()
     {
@@ -46,6 +49,9 @@ public class ObjectTracker : MonoBehaviour
         if (points.Count == 0)
             return;
 
+        if (points.Count == 1)
+            MeasureNoise(points[0].Position);
+
         ProcessKalman(points);
         _gizmoList.Add(new List<Point>(points));
     }
@@ -56,6 +62,48 @@ public class ObjectTracker : MonoBehaviour
             return;
 
         ProcessKalman(points);
+    }
+
+    private void MeasureNoise(Vector2 point)
+    {
+        Vector2 realPosition = GameManager.Instance.SimulatedObjects.First().PositionVector2;
+        Vector2 delta = new (point.x - realPosition.x, point.y - realPosition.y);
+        _measurements.Add(delta);
+    }
+
+    private void CalculateNoise()
+    {
+        Vector2 measurementsSum = new ();
+        measurementsSum = _measurements.Aggregate(measurementsSum, (current, measurement) => current + measurement);
+
+        Vector2 mean = measurementsSum/_measurements.Count;
+        float meanXY = (mean.x + mean.y)/2;
+        float xSum = 0;
+        float ySum = 0;
+        float xySum = 0;
+        foreach (Vector2 measurement in _measurements)
+        {
+            float x = measurement.x - mean.x;
+            float y = measurement.y - mean.y;
+            float xy = measurement.x + measurement.y - meanXY;
+            x *= x;
+            y *= y;
+            xy *= xy;
+            xSum += x;
+            ySum += y;
+            xySum += xy;
+        }
+
+        float xStandardDeviation = xSum / _measurements.Count;
+        float yStandardDeviation = ySum / _measurements.Count;
+        float xyStandardDeviation = xySum / (2 * _measurements.Count);
+        
+        print("x: " + xStandardDeviation + " y: " + yStandardDeviation + " xy: " + xyStandardDeviation);
+    }
+
+    private void OnDestroy()
+    {
+        CalculateNoise();
     }
 
     private static void ProcessKalman(IReadOnlyList<Point> points)
@@ -87,14 +135,12 @@ public class ObjectTracker : MonoBehaviour
             }
         }
     }
-
-
+    
     private static void InstantiateKalman(Vector2 position)
     {
         KalmanManager.Instance.InstantiateNewKalmanFilter(position);
         KalmanManager.Instance.KalmanFilters.LastOrDefault()?.SetNewMeasurement(position);
     }
-
 
     private static float[][] CreateDistanceArray(IReadOnlyList<Point> points)
     {
@@ -135,7 +181,7 @@ public class ObjectTracker : MonoBehaviour
             Color color = Color.HSVToRGB(0, 1f / count * i, 1);
             foreach (Point point in _gizmoList[i])
             {
-                GizmosUtils.DrawText(GUI.skin, "+", new Vector3(point.X, 0, point.Z), color: color, fontSize: 6);
+                GizmosUtils.DrawText(GUI.skin, "+", new Vector3(point.X, 0, point.Z), color: color, fontSize: 10);
             }
         }
     }
