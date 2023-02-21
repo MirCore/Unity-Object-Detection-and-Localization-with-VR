@@ -231,6 +231,18 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3190365846018726929, guid: 737a1cb2d7a458a41b578da4ea5f0f68, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.92387956
+      objectReference: {fileID: 0}
+    - target: {fileID: 3190365846018726929, guid: 737a1cb2d7a458a41b578da4ea5f0f68, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.38268343
+      objectReference: {fileID: 0}
+    - target: {fileID: 3190365846018726929, guid: 737a1cb2d7a458a41b578da4ea5f0f68, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 45
+      objectReference: {fileID: 0}
     - target: {fileID: 4234925458942364668, guid: 737a1cb2d7a458a41b578da4ea5f0f68, type: 3}
       propertyPath: m_LocalRotation.w
       value: 0.92387956
@@ -484,7 +496,8 @@ MonoBehaviour:
   EnableYOLO: 1
   EnableMeasureSimulation: 0
   DurationSeconds: 30
-  OmegaSquared: 5
+  MaxKalmanMeasurementDistance: 5
+  SigmaSquared: 30
   Rx: 3
   Ry: 30
   Messpunkte: 1
@@ -518,7 +531,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   KalmanFilters: []
   _kalmanFilterPrefab: {fileID: 7831495390002388126, guid: f89c008efa086754693c1b72ec53b822, type: 3}
-  text: {fileID: 1691287936}
+  Text: {fileID: 1691287936}
 --- !u!114 &338167178
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1107,7 +1120,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8e2e6ce2316eff488b407f9fa9f690d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RotationAngle: 0.02
 --- !u!1001 &1625197620
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1612,6 +1624,18 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3190365846018726929, guid: 737a1cb2d7a458a41b578da4ea5f0f68, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.92387956
+      objectReference: {fileID: 0}
+    - target: {fileID: 3190365846018726929, guid: 737a1cb2d7a458a41b578da4ea5f0f68, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.38268343
+      objectReference: {fileID: 0}
+    - target: {fileID: 3190365846018726929, guid: 737a1cb2d7a458a41b578da4ea5f0f68, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 45
+      objectReference: {fileID: 0}
     - target: {fileID: 4234925458942364668, guid: 737a1cb2d7a458a41b578da4ea5f0f68, type: 3}
       propertyPath: m_LocalRotation.w
       value: 0.92387956
