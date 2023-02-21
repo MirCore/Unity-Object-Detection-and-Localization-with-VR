@@ -436,7 +436,6 @@ MonoBehaviour:
   _resources: {fileID: 11400000, guid: 4bdfe4ce1192248c69b07ffd4bb583c2, type: 2}
   _preview: {fileID: 1162821836}
   _markerPrefab: {fileID: 4536004240564693993, guid: 60564bd5cdc8546268601d4f7d6ed7cc, type: 3}
-  Locator: {fileID: 0}
   Tracker: {fileID: 338167180}
   _CameraSource: {fileID: 8400000, guid: 69d887890d435f84bb8e70e86c751715, type: 2}
 --- !u!114 &338167183
@@ -453,8 +452,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _camera: {fileID: 1314325693}
   RecordPositions: 0
-  PlayRecordedPositions: 0
-  PlayRecordedRotations: 0
+  PlayRecordedPositions: 1
+  PlayRecordedRotations: 1
   RotateAroundCenter: 0
   TimeScale: 1
   RecordedPositionsFile: {fileID: 4900000, guid: b1782c2c720f47d458031f52edf090f3, type: 3}
