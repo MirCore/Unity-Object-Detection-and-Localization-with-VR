@@ -121,7 +121,7 @@ public class ObjectTracker : MonoBehaviour
         for (int i = 0; i < points.Count; i++)
         {
             // Find pair of KalmanFilter and Point with smallest distance
-            HelperFunctions.FindMinIndexOfMulti(distanceArray, out int kalman, out int point);
+            Utils.FindMinIndexOfMulti(distanceArray, out int kalman, out int point);
 
             // Send Point to KalmanFilter or Instantiate a new KalmanFilter if the distance is higher than the threshold
             if (float.IsPositiveInfinity(distanceArray[kalman][point]) || float.IsNaN(distanceArray[kalman][point]))
@@ -133,7 +133,7 @@ public class ObjectTracker : MonoBehaviour
                 KalmanManager.Instance.KalmanFilters[kalman].SetNewMeasurement(points[point].Position);
             
                 // Set the distance of the used KalmanFilter and Point to NaN in the distanceArray
-                HelperFunctions.RemoveUsedPairsInDistanceArray(points.Count, kalmanFilterCount, distanceArray, point, kalman);
+                Utils.RemoveUsedPairsInDistanceArray(points.Count, kalmanFilterCount, distanceArray, point, kalman);
             }
         }
     }
@@ -187,47 +187,4 @@ public class ObjectTracker : MonoBehaviour
             }
         }
     }
-}
-
-public class Point
-{
-    private float _x;
-    private float _z;
-    public float W, H;
-
-    public float X
-    {
-        get => _x;
-        set
-        {
-            _x = value;
-            _position.x = value;
-        }
-    }
-    public float Z
-    {
-        get => _z;
-        set
-        {
-            _z = value;
-            _position.y = value;
-        }
-    }
-    
-    private Vector2 _position;
-
-    public Vector2 Position
-    {
-        get => _position;
-        set {
-            _position = value;
-            X = value.x;
-            Z = value.y;
-        }
-    }
-    public DateTime Timestamp;
-    
-    public const int NOISE = -1;
-    public const int UNCLASSIFIED = 0;
-    public int ClusterId;
 }

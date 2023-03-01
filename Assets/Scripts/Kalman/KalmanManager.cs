@@ -133,14 +133,14 @@ namespace Kalman
             for (int i = 0; i < simulatedObjectsCount; i++)
             {
                 // Find pair of KalmanFilter and Point with smallest distance
-                HelperFunctions.FindMinIndexOfMulti(distanceArray, out int kalman, out int simulatedObject);
+                Utils.FindMinIndexOfMulti(distanceArray, out int kalman, out int simulatedObject);
 
                 if (float.IsPositiveInfinity(distanceArray[kalman][simulatedObject]) || float.IsNaN(distanceArray[kalman][simulatedObject]))
                     continue;
                 kalmanSimulationPairs.Add(new Tuple<KalmanFilter, SimulationController>(KalmanFilters[kalman], GameManager.Instance.SimulatedObjects[simulatedObject]));
 
                 // Set the distance of the used KalmanFilter and Point to Infinity in the distanceArray
-                HelperFunctions.RemoveUsedPairsInDistanceArray(simulatedObjectsCount, KalmanFilters.Count,
+                Utils.RemoveUsedPairsInDistanceArray(simulatedObjectsCount, KalmanFilters.Count,
                     distanceArray, simulatedObject, kalman);
             }
 
