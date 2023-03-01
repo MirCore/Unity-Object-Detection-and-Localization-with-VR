@@ -4,20 +4,13 @@ using System.Linq;
 using UnityEngine;
 using YoloV4Tiny;
 
-public class ObjectLocator : MonoBehaviour
+public class ObjectTrackerClustering : ObjectTracker
 {
     private readonly List<DetectedObject> _detectedObjects = new();
 
     private PlacedObject _detectedObjectPrefab;
 
-    [Header("Object-detection settings")]
-    [SerializeField] private List<string> LabelsToFind;
-    [SerializeField] private bool StereoImage;
-    private readonly List<int> _labelsToFindIndexes = new();
     [SerializeField] private bool UseObjectModels = true;
-
-    [Header("Raycast setting")]
-    [SerializeField] private int MaxRayDistance = 3;
     
     [Header("Clustering settings")]
     [SerializeField] private double Eps = 1;
@@ -28,7 +21,6 @@ public class ObjectLocator : MonoBehaviour
     [SerializeField] private int NoiseLifetime = 5;
     [SerializeField] private int ObjectLifetime = 30;
     
-    private CameraToWorld _cameraToWorld;
     private DBScanMono _dbScanMono;
 
     private readonly List<int> _listOfRunningClusteringCoroutines = new();
@@ -36,7 +28,8 @@ public class ObjectLocator : MonoBehaviour
 
     private void Start()
     {
-        _cameraToWorld = new CameraToWorld(Camera.main);
+        SetupObjectTracker();
+        
         _dbScanMono = gameObject.AddComponent<DBScanMono>();
         _detectedObjectPrefab = ObjectModelManager.Instance.GetPrefabDefinition();
         
@@ -46,11 +39,6 @@ public class ObjectLocator : MonoBehaviour
             _detectedObjects.Add(new DetectedObject());
         }
 
-        foreach (string label in LabelsToFind)
-        {
-            _labelsToFindIndexes.Add(Array.IndexOf(Marker.Labels, label));
-            //Debug.Log("labelIndex: " + Array.IndexOf(Marker.Labels, label) + " name: " + Marker.Labels[Array.IndexOf(Marker.Labels, label)]);
-        }
     }
 
     private void Update()
@@ -65,7 +53,7 @@ public class ObjectLocator : MonoBehaviour
 
     private void ClusterPoints()
     {
-        foreach (int index in _labelsToFindIndexes)
+        foreach (int index in LabelsToFindIndexes)
         {
             _detectedObjects[index].DetectedPoints.AddRange(_detectedObjects[index].NewDetectedPoints);
             _detectedObjects[index].NewDetectedPoints.Clear();
@@ -77,7 +65,7 @@ public class ObjectLocator : MonoBehaviour
     private void ProcessObjectType()
     {
         CalculateCenterAndDimensions(); // Calculate Center and Dimensions of each Cluster
-        foreach (int labelIndex in _labelsToFindIndexes)
+        foreach (int labelIndex in LabelsToFindIndexes)
         {
 
             // For each cluster, get closest placedObject (if any) and update position and size
@@ -169,18 +157,27 @@ public class ObjectLocator : MonoBehaviour
     {
         foreach (Detection detection in detections)
         {
-            if (!_labelsToFindIndexes.Contains((int) detection.classIndex)) // Filter for detected objects by Label
+            if (!LabelsToFindIndexes.Contains((int) detection.classIndex)) // Filter for detected objects by Label
                 return;
             
-            _cameraToWorld.ProcessDetection(detection, MaxRayDistance, StereoImage, out Point p); // Raycast from Camera to Floor
+            CameraToWorld.ProcessDetection(detection, MaxRayDistance, GameManager.Instance.StereoImage, out Point p); // Raycast from Camera to Floor
             
             if (p != null)
                 _detectedObjects[(int) detection.classIndex].NewDetectedPoints.Add(p); // Write hit points to _detectedObjects List
         }
     }
 
-    public List<DetectedObject> GetDetectedObjects()
+    private void OnDrawGizmos()
     {
-        return _detectedObjects;
+        foreach (DetectedObject detectedObject in _detectedObjects)
+        {
+            int clusterCount = detectedObject.Clusters.Count + 1;
+            foreach (Point point in detectedObject.DetectedPoints)
+            {
+                Color color = Color.HSVToRGB((float) point.ClusterId / clusterCount, 1f, 1f);
+                GizmosUtils.DrawText(GUI.skin, point.ClusterId.ToString(), new Vector3(point.X, 0, point.Z), color, 10);
+            }
+            
+        }
     }
 }

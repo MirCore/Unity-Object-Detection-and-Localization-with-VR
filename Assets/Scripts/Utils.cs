@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public static class Utils
 {
@@ -33,6 +34,16 @@ public static class Utils
         {
             distanceArray[b][y] = float.NaN;
         }
+    }
+
+    public static float GenerateGaussianRandom(float mu, float sigma)
+    {
+        float rand1 = Random.Range(0.0f, 1.0f);
+        float rand2 = Random.Range(0.0f, 1.0f);
+
+        float n = Mathf.Sqrt(-2.0f * Mathf.Log(rand1)) * Mathf.Cos((2.0f * Mathf.PI) * rand2);
+
+        return (mu + sigma * n);
     }
 }
 
@@ -77,6 +88,18 @@ public class Point
     public const int NOISE = -1;
     public const int UNCLASSIFIED = 0;
     public int ClusterId;
+}
+
+public class KalmanState
+{
+    public Vector2 GroundTruthPosition;
+    public Vector2 GroundTruthVelocity;
+    public Vector2 KalmanPosition;
+    public Vector2 KalmanVelocity;
+    public Vector2 KalmanP;
+    public Vector2 Measurement;
+    public float Time;
+    public int Frame;
 }
 
 public class DetectedObject

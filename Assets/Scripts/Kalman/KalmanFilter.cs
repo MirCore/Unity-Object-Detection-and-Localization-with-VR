@@ -42,7 +42,7 @@ namespace Kalman
 
         private void Awake()
         {
-            PopulateMatrices(GameManager.Instance.GetSigmaSquared());
+            PopulateMatrices(GameManager.Instance.SigmaSquared);
 
             KalmanManager.Instance.SetNewKalmanFilter(this);
         }
@@ -84,7 +84,7 @@ namespace Kalman
 
             I = DenseMatrix.CreateIdentity(4);
 
-            R = DenseMatrix.OfDiagonalArray(new double[] { GameManager.Instance.GetRx(), GameManager.Instance.GetRy() });
+            R = DenseMatrix.OfDiagonalArray(new double[] { GameManager.Instance.Rx, GameManager.Instance.Ry });
 
             // Initial
             P = DenseMatrix.OfDiagonalArray(new double[] { 100, 100, 10, 10 });

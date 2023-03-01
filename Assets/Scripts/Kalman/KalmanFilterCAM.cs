@@ -45,7 +45,7 @@ namespace Kalman
 
             I = DenseMatrix.CreateIdentity(6);
 
-            R = DenseMatrix.OfDiagonalArray(new double[] { GameManager.Instance.GetRx(), GameManager.Instance.GetRy() });
+            R = DenseMatrix.OfDiagonalArray(new double[] { GameManager.Instance.Rx, GameManager.Instance.Ry });
 
             P = DenseMatrix.OfDiagonalArray(new double[] { 1000, 1000, 100, 100, 10, 10 });
 

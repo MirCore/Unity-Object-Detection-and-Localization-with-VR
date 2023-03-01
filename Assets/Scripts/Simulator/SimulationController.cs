@@ -61,9 +61,9 @@ namespace Simulator
 
         private void MoveToRecordedLocation()
         {
-            if (GameManager.Instance.FrameNumber >= _recordedPositionsFileRows.Length - 1)
+            if (GameManager.Instance.FixedFrameNumber >= _recordedPositionsFileRows.Length - 1)
                 return;
-            string[] lineData = _recordedPositionsFileRows[GameManager.Instance.FrameNumber].Trim().Trim('(', ')').Split(";"[0]);
+            string[] lineData = _recordedPositionsFileRows[GameManager.Instance.FixedFrameNumber].Trim().Trim('(', ')').Split(";"[0]);
             Vector3 recordedPosition = new(float.Parse(lineData[0]), float.Parse(lineData[1]), float.Parse(lineData[2]));
             LookAt(recordedPosition);
             SetNewPosition(recordedPosition);

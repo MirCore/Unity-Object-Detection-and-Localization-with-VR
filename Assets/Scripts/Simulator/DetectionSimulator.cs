@@ -11,7 +11,7 @@ namespace Simulator
    // [ExecuteInEditMode]
     public class DetectionSimulator : MonoBehaviour
     {
-        private ObjectTracker _objectTracker;
+        private ObjectTrackerKalman _objectTracker;
         [SerializeField] private GameObject SimulationObject;
         [SerializeField] private int NumberOfSimulationSpawnsOnStartup;
         [SerializeField] private float Noise = 1f;
@@ -40,7 +40,7 @@ namespace Simulator
         private void Start()
         {
             Random.InitState(42);
-            _objectTracker = gameObject.AddComponent<ObjectTracker>();
+            _objectTracker = gameObject.AddComponent<ObjectTrackerKalman>();
             
             for (int i = 0; i < NumberOfSimulationSpawnsOnStartup; i++)
             {
@@ -71,8 +71,8 @@ namespace Simulator
                 {
                     _points.Add(new Point
                     {
-                        X = position.x + MathFunctions.GaussianRandom.GenerateNormalRandom(0f, Noise),
-                        Z = position.z + MathFunctions.GaussianRandom.GenerateNormalRandom(0f, Noise)
+                        X = position.x + Utils.GenerateGaussianRandom(0f, Noise),
+                        Z = position.z + Utils.GenerateGaussianRandom(0f, Noise)
                     });
                 }
 

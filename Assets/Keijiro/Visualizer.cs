@@ -7,14 +7,12 @@ public class Visualizer : MonoBehaviour
 {
     #region Editable attributes
 
-    [SerializeField] Klak.TestTools.ImageSource _source;
+    [SerializeField] protected ImageSource _source;
     [SerializeField, Range(0, 1)] protected float _threshold = 0.5f;
     [SerializeField] protected ResourceSet _resources = null;
     [SerializeField] protected RawImage _preview = null;
     [SerializeField] protected Marker _markerPrefab = null;
     
-    [SerializeField] protected ObjectTracker Tracker;
-
     #endregion
 
     #region Internal objects
@@ -30,14 +28,13 @@ public class Visualizer : MonoBehaviour
 
     void Start()
     {
-        IsTrackerNotNull = Tracker != null;
         _detector = new ObjectDetector(_resources);
         for (var i = 0; i < _markers.Length; i++)
             _markers[i] = Instantiate(_markerPrefab, _preview.transform);
     }
 
     void OnDisable()
-      => _detector.Dispose();
+      => _detector?.Dispose();
 
     void OnDestroy()
     {
@@ -55,8 +52,7 @@ public class Visualizer : MonoBehaviour
             _markers[i++].SetAttributes(d);
         }
 
-        if (IsTrackerNotNull)
-            Tracker.SetNewDetectionData(_detector.Detections);
+        GameManager.Instance.SetNewDetectionData(_detector.Detections);
         
 
         for (; i < _markers.Length; i++) _markers[i].Hide();

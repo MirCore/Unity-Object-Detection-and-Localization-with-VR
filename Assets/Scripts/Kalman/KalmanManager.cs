@@ -16,7 +16,9 @@ namespace Kalman
         public List<KalmanFilter> KalmanFilters = new();
         [SerializeField] private GameObject _kalmanFilterPrefab;
 
-        [SerializeField] private TMP_Text Text;
+        [SerializeField] private String NormalizedEstimatedErrorSquared;
+        [SerializeField] private String MeanSquaredError;
+        [SerializeField] private String NormalizedInnovationSquared;
 
         private float NEES;
         private float MSE;
@@ -46,13 +48,12 @@ namespace Kalman
             CalculateNormalizedEstimatedErrorSquared(kalmanSimulationPairs);
             CreateKalmanState(kalmanSimulationPairs);
 
-            string text = "";
             if (NEEScount != 0)
-                text += "NEES: " + (NEES / NEEScount).ToString("F4") +
-                        "\nMSE: " + (MSE / NEEScount).ToString("F4") + "\n";
-            text += "NIS: " + GetAverageNIS().ToString("F4");
-                
-            Text.SetText(text);
+            {
+                NormalizedEstimatedErrorSquared = (NEES / NEEScount).ToString("F4");
+                MeanSquaredError = (MSE / NEEScount).ToString("F4");
+            }
+            NormalizedInnovationSquared = GetAverageNIS().ToString("F4");
         }
 
         /// <summary>

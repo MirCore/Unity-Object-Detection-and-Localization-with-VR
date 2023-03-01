@@ -57,7 +57,7 @@ public class CameraMovementManager : MonoBehaviour
     private void MoveToRecordedOrientation()
     {
         int timeDisplacement = 3;
-        int frameNumber = (GameManager.Instance.FrameNumber - timeDisplacement) / TimeScale;
+        int frameNumber = (GameManager.Instance.FixedFrameNumber - timeDisplacement) / TimeScale;
         if (frameNumber >= _recordedPositionsFileRows.Length - 1 - timeDisplacement)
         {
             GameManager.Instance.ResetFrameNumber();

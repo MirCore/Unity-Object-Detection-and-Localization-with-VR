@@ -1,50 +1,72 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Kalman;
 using Simulator;
 using UnityEditor;
 using UnityEngine;
+using YoloV4Tiny;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-    private DateTime StartTime;
+
+
+    public enum LocalisationMethodEnum { Cluster, Kalman }
+    public LocalisationMethodEnum LocalisationMethod;
     
+    [field:Header("Object Detection Settings")]
+    [field:SerializeField] public List<string> LabelsToFind { get; private set; }
+    [field:SerializeField] public bool StereoImage { get; private set; }
+
+    private DateTime _startTime;
+    private Visualizer _visualizer;
+    public int FixedFrameNumber { get; private set; }
+    
+    [SerializeField] private int AutoPauseAfterSeconds = 0;
+
+    #region ClusteringValues
+
+    [SerializeField] private ObjectTrackerClustering ObjectTrackerClustering;
+
+    #endregion
+
+    
+    #region KalmanValues
+
+    private ObjectTrackerKalman ObjectTrackerKalman;
+
+    private DetectionSimulator _detectionSimulator;
     [SerializeField] private bool EnableYOLO = true;
     [SerializeField] private bool EnableMeasureSimulation = false;
-    
-    private Visualizer _visualizer;
-    private DetectionSimulator _detectionSimulator;
 
-    private readonly List<KalmanState> _kalmanStates = new();
-
-    [SerializeField] private int DurationSeconds = 10;
-    public float MaxKalmanMeasurementDistance = 5;
-    
-    [Header("Kalman Values")]
-    [SerializeField] private float SigmaSquared = 30;
-    [SerializeField] private float Rx = 10;
-    [SerializeField] private float Ry = 10;
+    [field:Header("Kalman Values")]
+    [field:SerializeField] public float SigmaSquared { get; private set; } = 30;
+    [field:SerializeField] public float Rx { get; private set; } = 10;
+    [field:SerializeField] public float Ry { get; private set; } = 10;
 
     [Header("Gizmos")]
-    [SerializeField] public bool Messpunkte = true;
-    
-    public int FrameNumber { get; private set; }
+    [SerializeField] public bool ShowMeasurementGizmos = true;
 
-    [Header("")]
+    [Header("Debug")]
     public List<SimulationController> SimulatedObjects = new();
-
-
+    
+    #endregion
+    
     private void Awake()
     {
+        // Singleton Instantiation
         if (Instance != null && Instance != this)
             Destroy(this);
         Instance = this;
 
-        //Time.timeScale = 0.5f;
+        switch (LocalisationMethod)
+        {
+            case LocalisationMethodEnum.Cluster:
+                break;
+            case LocalisationMethodEnum.Kalman:
+                ObjectTrackerKalman = gameObject.AddComponent<ObjectTrackerKalman>();
+                break;
+        }
     }
 
     private void Start()
@@ -55,81 +77,20 @@ public class GameManager : MonoBehaviour
         if (_detectionSimulator != null)
             _detectionSimulator.enabled = EnableMeasureSimulation;
         
-        if (DurationSeconds != 0)
-            StartCoroutine(PauseGame(DurationSeconds));
+        if (AutoPauseAfterSeconds != 0)
+            StartCoroutine(PauseGame(AutoPauseAfterSeconds));
     }
 
     private void FixedUpdate()
     {
-
-        KalmanState kalmanState = KalmanManager.Instance.GetKalmanState();
-        if (kalmanState != null)
-            _kalmanStates.Add(kalmanState);
-
-        FrameNumber++;
+        FixedFrameNumber++;
     }
     
     private void OnDestroy()
     {
-        WriteFile("kalman", "NEES: " + KalmanManager.Instance.GetNEESValue() + "; o^2: " + SigmaSquared + "; R: " + Rx + " " + Ry);
-        WriteFileFromList("log", _kalmanStates);
-
-        Debug.Log(KalmanManager.Instance.GetMSEText());
-    }
-
-    private static void WriteFileFromList(string fileName, List<KalmanState> kalmanStates)
-    {
-        string fullFileName = "Assets/Output/" + fileName + ".csv";
-        TextWriter writer = new StreamWriter(fullFileName, false);
-        writer.WriteLine("Time" + ";" +
-                         "Frame" + ";" +
-                         "GroundTruth x" + ";" +
-                         "GroundTruth y" + ";" +
-                         "GroundTruth v_x" + ";" +
-                         "GroundTruth v_y" + ";" +
-                         "Measurement x" + ";" +
-                         "Measurement y" + ";" +
-                         "Kalman x" + ";" +
-                         "Kalman y" + ";" +
-                         "Kalman v_x" + ";" +
-                         "Kalman v_y" + ";" +
-                         "KalmanP x" + ";" +
-                         "KalmanP y");
-        foreach (string output in kalmanStates.Select(kalmanState => 
-                     kalmanState.Time + ";" +
-                     kalmanState.Frame + ";" +
-                     Vector2ToCsv(kalmanState.GroundTruthPosition) + ";" +
-                     Vector2ToCsv(kalmanState.GroundTruthVelocity) + ";" +
-                     Vector2ToCsv(kalmanState.Measurement) + ";" +
-                     Vector2ToCsv(kalmanState.KalmanPosition) + ";" +
-                     Vector2ToCsv(kalmanState.KalmanVelocity) + ";" +
-                     Vector2ToCsv(kalmanState.KalmanP)))
-        {
-            writer.WriteLine(output);
-        }
-        writer.Close();
-    }
-
-    private static string Vector2ToCsv(Vector2 input)
-    {
-        return input.x + ";" + input.y;
-    }
-
-    private static void WriteFile(string fileName, string output)
-    {
-        string fullFileName = "Assets/Output/" + fileName + ".csv";
-        TextWriter writer = new StreamWriter(fullFileName, true);
-        writer.WriteLine(output);
-        writer.Close();
-    }
-
-    public float GetRx()
-    {
-        return Rx;
-    }
-    public float GetRy()
-    {
-        return Ry;
+        //KalmanStatisticsUtils.WriteNEESToLog(SigmaSquared, Rx, Ry);
+        //KalmanStatisticsUtils.WriteFileFromList("log", _kalmanStates);
+        //Debug.Log(KalmanManager.Instance.GetMSEText());
     }
 
     private static IEnumerator PauseGame(int seconds)
@@ -138,31 +99,24 @@ public class GameManager : MonoBehaviour
         EditorApplication.isPaused = true;
     }
 
-    private IEnumerator StopGame(int seconds)
-    {
-        yield return new WaitForSeconds(seconds);
-        EditorApplication.isPlaying = false;
-    }
-
-    public double GetSigmaSquared()
-    {
-        return SigmaSquared;
-    }
-
     public void ResetFrameNumber()
     {
-        FrameNumber = 0;
+        FixedFrameNumber = 0;
+    }
+
+    public void SetNewDetectionData(IEnumerable<Detection> detectorDetections)
+    {
+        switch (LocalisationMethod)
+        {
+            case LocalisationMethodEnum.Cluster:
+                ObjectTrackerClustering.SetNewDetectionData(detectorDetections);
+                break;
+            case LocalisationMethodEnum.Kalman:
+                ObjectTrackerKalman.SetNewDetectionData(detectorDetections);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 }
 
-public class KalmanState
-{
-    public Vector2 GroundTruthPosition;
-    public Vector2 GroundTruthVelocity;
-    public Vector2 KalmanPosition;
-    public Vector2 KalmanVelocity;
-    public Vector2 KalmanP;
-    public Vector2 Measurement;
-    public float Time;
-    public int Frame;
-}
