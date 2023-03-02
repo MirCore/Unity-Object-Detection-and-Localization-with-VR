@@ -66,6 +66,8 @@ public class GameManager : MonoBehaviour
             case LocalisationMethodEnum.Kalman:
                 ObjectTrackerKalman = gameObject.AddComponent<ObjectTrackerKalman>();
                 break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 
@@ -93,6 +95,11 @@ public class GameManager : MonoBehaviour
         //Debug.Log(KalmanManager.Instance.GetMSEText());
     }
 
+    /// <summary>
+    /// Pauses Game after seconds. 
+    /// </summary>
+    /// <param name="seconds"></param>
+    /// <returns></returns>
     private static IEnumerator PauseGame(int seconds)
     {
         yield return new WaitForSeconds(seconds);
@@ -104,6 +111,11 @@ public class GameManager : MonoBehaviour
         FixedFrameNumber = 0;
     }
 
+    /// <summary>
+    /// Forwards new Object Detection data to Kalman or Clustering class
+    /// </summary>
+    /// <param name="detectorDetections"></param>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
     public void SetNewDetectionData(IEnumerable<Detection> detectorDetections)
     {
         switch (LocalisationMethod)

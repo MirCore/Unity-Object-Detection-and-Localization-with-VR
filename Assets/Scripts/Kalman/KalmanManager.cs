@@ -13,12 +13,16 @@ namespace Kalman
     public class KalmanManager : MonoBehaviour
     {
         public static KalmanManager Instance { get; private set; }
-        public List<KalmanFilter> KalmanFilters = new();
         [SerializeField] private GameObject _kalmanFilterPrefab;
 
-        [SerializeField] private String NormalizedEstimatedErrorSquared;
-        [SerializeField] private String MeanSquaredError;
-        [SerializeField] private String NormalizedInnovationSquared;
+        [SerializeField] private bool ActivateKalmanStatistics = false;
+
+        [Header("Kalman Statistics - Read Only")]
+        [SerializeField] private string NormalizedEstimatedErrorSquared;
+        [SerializeField] private string MeanSquaredError;
+        [SerializeField] private string NormalizedInnovationSquared;
+        
+        public List<KalmanFilter> KalmanFilters = new();
 
         private float NEES;
         private float MSE;
@@ -35,7 +39,8 @@ namespace Kalman
 
         private void FixedUpdate()
         {
-            EvaluateKalmanPerformance();
+            if (ActivateKalmanStatistics)
+                EvaluateKalmanPerformance();
         }
 
         /// <summary>

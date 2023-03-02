@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
-using Unity.XR.CoreUtils;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -23,7 +22,7 @@ namespace Kalman
 
         public float Ts;
 
-        private Transform _kalmanPosition;
+        private Transform _kalmanTransform;
         public Renderer Hologram;
 
         [SerializeField] private bool SelfDestruct = true;       
@@ -34,19 +33,22 @@ namespace Kalman
         private float NIS;
         private int NISCount;
 
-        private Vector2? _measurement = null;
+        private Vector2? _measurement;
         [SerializeField] private Color Color;
-
-        //private int measurementCount;
-        //private int UpdateCount;
 
         private void Awake()
         {
+            // Create Matrices
             PopulateMatrices(GameManager.Instance.SigmaSquared);
 
+            // Report this Kalman filter to the KalmanManager
             KalmanManager.Instance.SetNewKalmanFilter(this);
         }
 
+        /// <summary>
+        /// Creates Matrices used for Kalman filtering
+        /// </summary>
+        /// <param name="sigmaSquared"></param>
         private void PopulateMatrices(double sigmaSquared)
         {
             Ts = Time.fixedDeltaTime;
@@ -94,7 +96,9 @@ namespace Kalman
 
         private void Start()
         {
-            _kalmanPosition = transform;
+            _kalmanTransform = transform;
+            
+            // generate a Random color for the Gizmos
             Color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
             Hologram.material.color =  Color;
         }
@@ -108,30 +112,14 @@ namespace Kalman
             {
                 UpdatePrediction((Vector2) _measurement);
                 _measurement = null;
-                //UpdateCount++;
             }
         
-            //print("Measurement: " + measurementCount + " Update: " + UpdateCount);
-            
+            // Update GameObject
             UpdateKalmanGameObject();
 
+            // Check if Kalman filter has lost the position for to long. If true Destroy the Kalman filter
             if (SelfDestruct && P[0, 0] > SelfDestructDistance)
                 SelfDestroy();
-        }
-
-        private void SelfDestroy()
-        {
-            KalmanManager.Instance.RemoveKalmanFilter(this);
-            Destroy(gameObject);
-        }
-
-        private void UpdateKalmanGameObject()
-        {
-            Vector3 newPosition = GetVector3Position();
-            _kalmanPosition.position = newPosition;
-            _kalmanPosition.localScale = new Vector3((float)P[0, 0], 0.1f, (float)P[1, 1]);
-            Debug.DrawLine(newPosition, newPosition + GetVector3Velocity(), Color.red);
-            _kalmanPositions.Add(newPosition);
         }
 
         private void Predict()
@@ -157,15 +145,46 @@ namespace Kalman
             P = I_KH * P * I_KH.Transpose() + K * R * K.Transpose();
 
             
-            Matrix<double> v = DenseMatrix.OfColumnVectors(y); // residual (for NIS)
-            NIS += (float) (v.Transpose() * S.Inverse() * v)[0,0];
-            NISCount++;
+            //Matrix<double> v = DenseMatrix.OfColumnVectors(y); // residual (for NIS)
+            //NIS += (float) (v.Transpose() * S.Inverse() * v)[0,0];
+            //NISCount++;
+        }
+
+        /// <summary>
+        /// Removes the Kalman filter from the KalmanManager List and destroys itself
+        /// </summary>
+        private void SelfDestroy()
+        {
+            KalmanManager.Instance.RemoveKalmanFilter(this);
+            Destroy(gameObject);
+        }
+
+        // Updates the Transform to the new predictions
+        private void UpdateKalmanGameObject()
+        {
+            Vector3 newPosition = GetVector3Position();
+            _kalmanTransform.position = newPosition;
+            UpdateGizmos(newPosition);
         }
     
+        /// <summary>
+        /// Saves a new measurement for the net update cycle
+        /// </summary>
+        /// <param name="measurement"></param>
         public void SetNewMeasurement(Vector2 measurement)
         {
             _measurement = measurement;
-            //measurementCount++;
+        }
+
+        /// <summary>
+        /// Updates size of the P Gizmo and draws a line for the velocity vector
+        /// </summary>
+        /// <param name="newPosition"></param>
+        private void UpdateGizmos(Vector3 newPosition)
+        {
+            _kalmanTransform.localScale = new Vector3((float)P[0, 0], 0.1f, (float)P[1, 1]);
+            Debug.DrawLine(newPosition, newPosition + GetVector3Velocity(), Color.red);
+            _kalmanPositions.Add(newPosition);
         }
     
         private void OnDrawGizmos()

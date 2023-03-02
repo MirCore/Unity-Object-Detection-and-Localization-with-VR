@@ -237,7 +237,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &338167174
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -251,7 +251,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LocalisationMethod: 1
-  <LabelsToFind>k__BackingField: []
+  <LabelsToFind>k__BackingField:
+  - Person
+  - Chair
   <StereoImage>k__BackingField: 0
   AutoPauseAfterSeconds: 0
   ObjectTrackerClustering: {fileID: 0}
@@ -400,7 +402,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AspectMode: 0
-  m_AspectRatio: 1.7786033
+  m_AspectRatio: 1.7791518
 --- !u!114 &1082046619
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -456,7 +458,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2004067089140996428, guid: c4ac0acabf4f91b4c966d23078a56176, type: 3}
       propertyPath: <StereoImage>k__BackingField
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2272379922140791190, guid: c4ac0acabf4f91b4c966d23078a56176, type: 3}
       propertyPath: _video
@@ -465,6 +467,10 @@ PrefabInstance:
     - target: {fileID: 2272379922140791190, guid: c4ac0acabf4f91b4c966d23078a56176, type: 3}
       propertyPath: _sourceType
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2272379922140791190, guid: c4ac0acabf4f91b4c966d23078a56176, type: 3}
+      propertyPath: _webcamName
+      value: Logi Webcam C920e
       objectReference: {fileID: 0}
     - target: {fileID: 2648505151787514861, guid: c4ac0acabf4f91b4c966d23078a56176, type: 3}
       propertyPath: m_Name
