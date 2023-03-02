@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public static class GizmosUtils {
 
@@ -28,5 +29,14 @@ public static class GizmosUtils {
         }
         GUI.skin = prevSkin;
 #endif
+    }
+
+    public static void DrawLine(List<Vector3> positions, Color color)
+    {
+        for (int i = 0; i < positions.Count - 1; i++)
+        {
+            Gizmos.color = color;
+            Gizmos.DrawLine(positions[i], positions[i+1]);
+        }
     }
 }

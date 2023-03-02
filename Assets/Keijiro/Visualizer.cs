@@ -3,24 +3,24 @@ using UnityEngine.UI;
 using Klak.TestTools;
 using YoloV4Tiny;
 
-sealed class Visualizer : MonoBehaviour
+public class Visualizer : MonoBehaviour
 {
     #region Editable attributes
 
-    [SerializeField] ImageSource _source = null;
-    [SerializeField, Range(0, 1)] float _threshold = 0.5f;
-    [SerializeField] ResourceSet _resources = null;
-    [SerializeField] RawImage _preview = null;
-    [SerializeField] Marker _markerPrefab = null;
+    [SerializeField] protected ImageSource _source;
+    [SerializeField, Range(0, 1)] protected float _threshold = 0.5f;
+    [SerializeField] protected ResourceSet _resources = null;
+    [SerializeField] protected RawImage _preview = null;
+    [SerializeField] protected Marker _markerPrefab = null;
     
-    [SerializeField] private ObjectLocator Locator;
-
     #endregion
 
     #region Internal objects
 
-    ObjectDetector _detector;
-    Marker[] _markers = new Marker[50];
+    protected ObjectDetector _detector;
+    protected Marker[] _markers = new Marker[50];
+    private bool IsLocatorNotNull;
+    private bool IsTrackerNotNull;
 
     #endregion
     
@@ -34,7 +34,7 @@ sealed class Visualizer : MonoBehaviour
     }
 
     void OnDisable()
-      => _detector.Dispose();
+      => _detector?.Dispose();
 
     void OnDestroy()
     {
@@ -52,7 +52,8 @@ sealed class Visualizer : MonoBehaviour
             _markers[i++].SetAttributes(d);
         }
 
-        Locator.SetNewDetectionData(_detector.Detections);
+        GameManager.Instance.SetNewDetectionData(_detector.Detections);
+        
 
         for (; i < _markers.Length; i++) _markers[i].Hide();
 
