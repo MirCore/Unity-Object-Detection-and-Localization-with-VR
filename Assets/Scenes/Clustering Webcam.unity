@@ -666,6 +666,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1195919553897003616, guid: b6eb10bb82961994f92fc75e16514a6b, type: 3}
+      propertyPath: _sourceType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1195919553897003616, guid: b6eb10bb82961994f92fc75e16514a6b, type: 3}
+      propertyPath: _webcamName
+      value: Logi Webcam C920e
+      objectReference: {fileID: 0}
     - target: {fileID: 3664893579957041310, guid: b6eb10bb82961994f92fc75e16514a6b, type: 3}
       propertyPath: m_RootOrder
       value: 6

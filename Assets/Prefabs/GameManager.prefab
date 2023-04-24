@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 522950909689755042}
   - component: {fileID: 3775593644624702792}
   - component: {fileID: 9003486870374260418}
-  - component: {fileID: 3468729885310170514}
+  - component: {fileID: 2667668237286504284}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -53,7 +53,6 @@ MonoBehaviour:
   <StereoImage>k__BackingField: 0
   AutoPauseAfterSeconds: 0
   ObjectTrackerClustering: {fileID: 0}
-  ObjectTrackerKalman: {fileID: 0}
   EnableYOLO: 1
   EnableMeasureSimulation: 0
   <SigmaSquared>k__BackingField: 30
@@ -73,13 +72,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4528f706bbcba9d4c9da985b5f010f1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _source: {fileID: 3468729885310170514}
+  _source: {fileID: 2667668237286504284}
   _threshold: 0.5
   _resources: {fileID: 11400000, guid: 4bdfe4ce1192248c69b07ffd4bb583c2, type: 2}
   _preview: {fileID: 0}
   _markerPrefab: {fileID: 4536004240564693993, guid: 60564bd5cdc8546268601d4f7d6ed7cc, type: 3}
   VirtualCameraSource: {fileID: 0}
---- !u!114 &3468729885310170514
+--- !u!114 &2667668237286504284
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -91,12 +90,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40ff2e515a81541cbb664860588e2c6e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _sourceType: 2
-  _texture: {fileID: 2800000, guid: 396badab29eeb426e80c616058416f49, type: 3}
+  _sourceType: 1
+  _texture: {fileID: 0}
   _textureUrl: 
-  _video: {fileID: 0}
-  _videoUrl: file://Test3.mp4
-  _webcamName: Logitech StreamCam
+  _video: {fileID: 32900000, guid: 6c77be8e4d9269c42b6f9da5be9a3236, type: 3}
+  _videoUrl: 
+  _webcamName: 
   _webcamResolution: {x: 1920, y: 1080}
   _webcamFrameRate: 30
   _outputTexture: {fileID: 0}
